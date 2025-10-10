@@ -10,7 +10,7 @@ points négatifs : un seul côté du mesh s'affiche + il faudrait passer en cont
 
 **MeshFrequence :** \
 Idem que MeshGeneratorV1 mais les carrés se forment toutes les secondes et non à chaque clic \
-Point négatif : les mêmes + pour l'instant la génération de carré ne s'arrête jamais
+Point négatif : les mêmes + il faut revoir timerMax et les intervalles
 
 **Ruban :** \
 
