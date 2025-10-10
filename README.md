@@ -11,3 +11,8 @@ points négatifs : un seul côté du mesh s'affiche + il faudrait passer en cont
 **MeshFrequence :** \
 Idem que MeshGeneratorV1 mais les carrés se forment toutes les secondes et non à chaque clic \
 Point négatif : les mêmes + pour l'instant la génération de carré ne s'arrête jamais
+
+**Ruban :** \
+
+Je reprend le script MeshGeneratorV1 de Anais avec le ruban avec des clics. Quand je double clic, le ruban devient cloth. 
+Problème : le tissu cloth est comme dupliqué de l'initial, donc le cloth tombe mais il y a encore le ruban mesh en hauteur. 
