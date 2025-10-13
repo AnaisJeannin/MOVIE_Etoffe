@@ -19,11 +19,11 @@ Idem que MeshGeneratorV1 mais les carrés se forment toutes les secondes et non 
 Point négatif : les mêmes + il faut revoir timerMax et les intervalles
 
 **Ruban :** \
-Je reprend le script MeshGeneratorV1 de Anais avec le ruban avec des clics. Quand je double clic, le ruban devient cloth.\ 
-Problème : le tissu cloth est comme dupliqué de l'initial, donc le cloth tombe mais il y a encore le ruban mesh en hauteur.\
+Je reprend le script MeshGeneratorV1 de Anais avec le ruban avec des clics. Quand je double clic, le ruban devient cloth. 
+Problème : le tissu cloth est comme dupliqué de l'initial, donc le cloth tombe mais il y a encore le ruban mesh en hauteur.
 
 **MeshClothV0 :** \
-Comme Ruban mais on clique sur la molette et aucun plan n'est ajouté.\
+Comme Ruban mais on clique sur la molette pour créer un cloth et aucun plan n'est ajouté. \
 
 **MeshClothV1 :** \
 En cliqaunt sur la molette de la souris, le ruban qui est créé avec le MeshTimer devient un cloth (le mesh renderer est enlevé et un cloth est créé). En rappuyant sur la molette, le mesh renderer réapparait et le cloth est détruit.
