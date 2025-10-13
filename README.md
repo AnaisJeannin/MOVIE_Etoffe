@@ -14,6 +14,13 @@ clic gauche : début coroutine, toutes les 0.1s une nouvelle maille est créée 
 clic droit : arrêt coroutine\
 point négatif : un seul ruban -> si on arrête et reprend, on continue le ruban précédent.
 
+
+**MeshTimerV1**\
+situation initiale : rectangle fin\
+clic gauche : début coroutine, toutes les 0.1s une nouvelle maille est créée en suivant le mouvement de la souris.\
+clic droit : arrêt coroutine\
+clic milieu : début d'un nouveau ruban (création rectangle fin à l'emplacement de la souris)
+
 **MeshFrequence :** \
 Idem que MeshGeneratorV1 mais les carrés se forment toutes les secondes et non à chaque clic \
 Point négatif : les mêmes + il faut revoir timerMax et les intervalles
