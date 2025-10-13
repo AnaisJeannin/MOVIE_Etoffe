@@ -33,4 +33,11 @@ Problème : le tissu cloth est comme dupliqué de l'initial, donc le cloth tombe
 Comme Ruban mais on clique sur la molette pour créer un cloth et aucun plan n'est ajouté. \
 
 **MeshClothV1 :** \
-En cliqaunt sur la molette de la souris, le ruban qui est créé avec le MeshTimer devient un cloth (le mesh renderer est enlevé et un cloth est créé). En rappuyant sur la molette, le mesh renderer réapparait et le cloth est détruit.
+En cliqaunt sur la molette de la souris, le ruban qui est créé avec le MeshTimer devient un cloth (le mesh renderer est enlevé et un cloth est créé). En rappuyant sur la molette, le mesh renderer réapparait et le cloth est détruit.\
+
+**MeshClothV2 :** \
+clic gauche : début coroutine, toutes les 0.1s une nouvelle maille est créée en suivant le mouvement de la souris.\
+clic droit : arrêt coroutine\
+Si on refait clic gauche on crée un nouveau ruban\
+clic milieu : Mesh -> Cloth ou Cloth -> Mesh\
+Problèmes : les rubans se traversent et on peut créer des mesh quand le reste est en cloth 
