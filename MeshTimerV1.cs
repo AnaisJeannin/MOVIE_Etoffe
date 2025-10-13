@@ -28,20 +28,6 @@ public class MeshTimer : MonoBehaviour
         // Si la caméra n'est pas assignée, on prend la principale
         if (mainCamera == null)
             mainCamera = Camera.main;
-
-        verticesPre = new Vector3[4];
-        verticesPre[0] = new Vector3(0, 0, 0);
-        verticesPre[1] = new Vector3(0, 1, 0);
-        verticesPre[2] = new Vector3(0.1f, 0, 0);
-        verticesPre[3] = new Vector3(0.1f, 1, 0);
-
-        mesh = new Mesh();
-        GetComponent<MeshFilter>().mesh = mesh;
-
-
-        CreateShape();
-        UpdateMesh();
-
     }
 
     void CreateShape()
@@ -162,6 +148,7 @@ public class MeshTimer : MonoBehaviour
         {
             if (MeshCreation == null)
             {
+                NewMesh();
                 MeshCreation = StartCoroutine(NewVertexes());
             }
         }
@@ -171,12 +158,6 @@ public class MeshTimer : MonoBehaviour
         {
             StopCoroutine(MeshCreation);
             MeshCreation = null;
-        }
-
-        //Nouveau ruban
-        if (Input.GetMouseButtonDown(2))
-        {
-            NewMesh();
         }
     }
 
