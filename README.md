@@ -43,7 +43,11 @@ clic milieu : Mesh -> Cloth ou Cloth -> Mesh\
 Problèmes : les rubans se traversent et on peut créer des mesh quand le reste est en cloth \
 
 **MeshClothFix :** \
-Même code que MeshClothV2 + je fixe le premier vertex de chaque ruban => il se déplie dans la longueur en passant en cloth
+Même code que MeshClothV2 + je fixe le premier vertex de chaque ruban => il se déplie dans la longueur en passant en cloth \
+
+**MeshClothFixV1 :** \
+Cette fois-ci, le premier vertex se fixe uniquement s'il est sur une sphère précise. \
+Attention : il faut créer une sphère dans la scène et l'assigner au Mesh Generator (en la glissant dans la zpne "sphere" \
 
 **Ruban_test_main :** \
 
