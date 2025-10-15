@@ -40,4 +40,7 @@ clic gauche : début coroutine, toutes les 0.1s une nouvelle maille est créée 
 clic droit : arrêt coroutine\
 Si on refait clic gauche on crée un nouveau ruban\
 clic milieu : Mesh -> Cloth ou Cloth -> Mesh\
-Problèmes : les rubans se traversent et on peut créer des mesh quand le reste est en cloth 
+Problèmes : les rubans se traversent et on peut créer des mesh quand le reste est en cloth \
+
+**MeshClothFix :** \
+Même code que MeshClothV2 + je fixe le premier vertex de chaque ruban => il se déplie dans la longueur en passant en cloth
