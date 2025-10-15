@@ -13,6 +13,8 @@ public class MeshTimer : MonoBehaviour
     public Camera mainCamera;          // la caméra utilisée
     public float spawnDistance = 10f;  // distance initiale devant la caméra
     public float scrollSpeed = 5f;     // vitesse de changement de profondeur
+    public Transform sphere; // la sphère
+    public float sphereRadius = 1f; // le rayon de la sphère
 
     Vector3[] verticesAct;
     Vector3[] verticesPre;
@@ -209,15 +211,21 @@ public class MeshTimer : MonoBehaviour
 
             ClothSkinningCoefficient[] coefficients = cloth.coefficients;
 
-            if (coefficients.Length > 0)
+            // On trosforme la position locale des vertex en position globale
+            Vector3 worldVertexPos = transform.TransformPoint(smr.sharedMesh.vertices[0]);
+
+            float dist = Vector3.Distance(sphere.position, worldVertexPos);
+            bool isOnSphere = dist < sphereRadius;
+
+            if (isOnSphere)
             {
                 coefficients[0].maxDistance = 0f; // Fixer le premier point
                 cloth.coefficients = coefficients; // Réassigner le tableau modifié
             }
 
             Debug.Log("Cloth activé !");
+            ModeCloth = true
 
-            ModeCloth = true;
         }
 
         else
@@ -238,7 +246,6 @@ public class MeshTimer : MonoBehaviour
             newRenderer.material = mat;
 
             Debug.Log("Cloth désactivé !");
-
             ModeCloth = false;
         }
     }
