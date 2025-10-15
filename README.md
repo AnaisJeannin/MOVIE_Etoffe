@@ -33,21 +33,21 @@ Problème : le tissu cloth est comme dupliqué de l'initial, donc le cloth tombe
 Comme Ruban mais on clique sur la molette pour créer un cloth et aucun plan n'est ajouté. \
 
 **MeshClothV1 :** \
-En cliqaunt sur la molette de la souris, le ruban qui est créé avec le MeshTimer devient un cloth (le mesh renderer est enlevé et un cloth est créé). En rappuyant sur la molette, le mesh renderer réapparait et le cloth est détruit.\
+En cliqaunt sur la molette de la souris, le ruban qui est créé avec le MeshTimer devient un cloth (le mesh renderer est enlevé et un cloth est créé). En rappuyant sur la molette, le mesh renderer réapparait et le cloth est détruit.
 
 **MeshClothV2 :** \
 clic gauche : début coroutine, toutes les 0.1s une nouvelle maille est créée en suivant le mouvement de la souris.\
 clic droit : arrêt coroutine\
 Si on refait clic gauche on crée un nouveau ruban\
 clic milieu : Mesh -> Cloth ou Cloth -> Mesh\
-Problèmes : les rubans se traversent et on peut créer des mesh quand le reste est en cloth \
+Problèmes : les rubans se traversent et on peut créer des mesh quand le reste est en cloth 
 
 **MeshClothFix :** \
-Même code que MeshClothV2 + je fixe le premier vertex de chaque ruban => il se déplie dans la longueur en passant en cloth \
+Même code que MeshClothV2 + je fixe le premier vertex de chaque ruban => il se déplie dans la longueur en passant en cloth 
 
 **MeshClothFixV1 :** \
 Cette fois-ci, le premier vertex se fixe uniquement s'il est sur une sphère précise. \
-Attention : il faut créer une sphère dans la scène et l'assigner au Mesh Generator (en la glissant dans la zpne "sphere" \
+Attention : il faut créer une sphère dans la scène et l'assigner au Mesh Generator (en la glissant dans la zpne "sphere" 
 
 **Ruban_test_main :** \
 
