@@ -49,6 +49,12 @@ Même code que MeshClothV2 + je fixe le premier vertex de chaque ruban => il se 
 Cette fois-ci, le premier vertex se fixe uniquement s'il est sur une sphère précise. \
 Attention : il faut créer une sphère dans la scène et l'assigner au Mesh Generator (en la glissant dans la zpne "sphere" 
 
+**MeshMove :** \
+clic gauche : commence un ruban \
+clic droit : arrête le ruban en cours \
+clic molette : mesh <-> cloth \
+clic barre espace : le dernier ruban suit la osition de la souris (ou s'arrête selon ce qu'il faisait avant)
+
 **Ruban_test_main :** \
 
 meme code que le ruban / cloth mais pour la VR
