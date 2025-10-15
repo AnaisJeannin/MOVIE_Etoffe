@@ -44,3 +44,7 @@ Problèmes : les rubans se traversent et on peut créer des mesh quand le reste 
 
 **MeshClothFix :** \
 Même code que MeshClothV2 + je fixe le premier vertex de chaque ruban => il se déplie dans la longueur en passant en cloth
+
+**Ruban_test_main :** \
+
+meme code que le ruban / cloth mais pour la VR
