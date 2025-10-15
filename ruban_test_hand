@@ -1,0 +1,163 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using OculusSampleFramework;
+
+[RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
+public class MeshTimerHand : MonoBehaviour
+{
+    Mesh mesh;
+
+    public event Action<Mesh> MeshCreated;
+    public Camera mainCamera; //caméra utilisée
+    public OVRHand hand; // caméra mains
+    public float spawnDistance = 10f; // distance initiale devant la caméra
+    public float updateInterval = 0.02f; // intervalle de mise à jour du ruban
+    public float ribbonWidth = 0.03f; // largeur du ruban ( à terme on pourrait modifier ça pour faire avec l'écart entre les doigts)
+
+    Vector3[] verticesAct;
+    Vector3[] verticesPre;
+    List<Vector3> fingerPositions = new List<Vector3>(); // change le clic en position des mains
+    int[] triangles;
+    int verticesCount = 4;
+    int trianglesCount = 2;
+
+    Coroutine meshCreation;
+    List<GameObject> rubans = new List<GameObject>();
+
+    void Start()
+    {
+        if (mainCamera == null)
+            mainCamera = Camera.main;
+    }
+
+    void CreateShape()
+    {
+        verticesAct = new Vector3[verticesCount]; 
+        for (int j = 0; j < verticesPre.Length; j++)
+            verticesAct[j] = verticesPre[j];
+
+        if (verticesCount > 4)
+        {
+            int offset = 4;
+            for (int n = 0; n < fingerPositions.Count; n++)
+            {
+                int i = offset + n * 2;
+                Vector3 basePos = fingerPositions[n];
+
+                // Calcul d'une orientation stable face caméra pour suivre la main
+                Vector3 normal = (mainCamera.transform.position - basePos).normalized;
+                Vector3 tangent = Vector3.Cross(Vector3.up, normal).normalized;
+
+                verticesAct[i] = basePos - tangent * ribbonWidth * 0.5f;
+                verticesAct[i + 1] = basePos + tangent * ribbonWidth * 0.5f;
+            }
+        }
+
+        triangles = new int[trianglesCount * 3];
+        triangles[0] = 0; 
+        triangles[1] = 1; 
+        triangles[2] = 2;
+        triangles[3] = 3; 
+        triangles[4] = 2; 
+        triangles[5] = 1;
+
+        if (trianglesCount > 2)
+        {
+            for (int i = 2; i < trianglesCount; i += 2)
+            {
+                int tri = i * 3;
+                triangles[tri + 0] = i;
+                triangles[tri + 1] = i + 1;
+                triangles[tri + 2] = i + 2;
+                triangles[tri + 3] = i + 3;
+                triangles[tri + 4] = i + 2;
+                triangles[tri + 5] = i + 1;
+            }
+        }
+    }
+
+    void UpdateMesh()
+    {
+        mesh.Clear();
+        mesh.vertices = verticesAct;
+        mesh.triangles = triangles;
+        mesh.RecalculateNormals();
+    }
+
+    void NewMesh(Vector3 startPos)
+    {
+        GameObject newRuban = new GameObject("Ruban");
+        newRuban.transform.SetParent(transform);
+        rubans.Add(newRuban);
+
+        MeshRenderer meshrenderer = newRuban.AddComponent<MeshRenderer>();
+        MeshFilter meshFilter = newRuban.AddComponent<MeshFilter>();
+
+        meshrenderer.material = GetComponent<MeshRenderer>().material;
+        meshrenderer.material.SetInt("_Cull", (int)UnityEngine.Rendering.CullMode.Off);
+
+        Mesh newMesh = new Mesh();
+        meshFilter.mesh = newMesh;
+
+
+        verticesPre = new Vector3[4];
+        Vector3 normal = (mainCamera.transform.position - startPos).normalized;
+        Vector3 tangent = Vector3.Cross(Vector3.up, normal).normalized;
+
+        verticesPre[0] = startPos - tangent * ribbonWidth * 0.5f;
+        verticesPre[1] = startPos + tangent * ribbonWidth * 0.5f;
+        verticesPre[2] = startPos - tangent * ribbonWidth * 0.5f;
+        verticesPre[3] = startPos + tangent * ribbonWidth * 0.5f;
+
+        verticesCount = 4;
+        trianglesCount = 2;
+        fingerPositions.Clear(); // modification clic en main
+
+        mesh = newMesh;
+        CreateShape();
+        UpdateMesh();
+        MeshCreated?.Invoke(mesh);
+    }
+
+    IEnumerator NewVertices()
+    {
+        while (true)
+        {
+            if (hand != null && hand.GetFingerIsPinching(OVRHand.HandFinger.Index)) //ruban quand les deux doigts se touchent
+            {
+                Vector3 fingerPos = hand.GetPointerPose().position + hand.transform.forward * spawnDistance;
+                fingerPositions.Add(fingerPos);
+
+                verticesCount += 2;
+                trianglesCount += 2;
+                CreateShape();
+                UpdateMesh();
+                MeshCreated?.Invoke(mesh);
+            }
+            else
+            {
+                StopCoroutine(meshCreation);
+                meshCreation = null;
+                yield break;
+            }
+
+            yield return new WaitForSeconds(updateInterval);
+        }
+    }
+
+    void Update()
+    {
+        if (hand == null)
+            return;
+
+        // Démarre un nouveau ruban au début du geste de pince
+        if (meshCreation == null && hand.GetFingerIsPinching(OVRHand.HandFinger.Index))
+        {
+            Vector3 startPos = hand.GetPointerPose().position + hand.transform.forward * spawnDistance;
+            NewMesh(startPos);
+            meshCreation = StartCoroutine(NewVertices());
+        }
+    }
+}
