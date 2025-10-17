@@ -58,3 +58,10 @@ clic barre espace : le dernier ruban suit la osition de la souris (ou s'arrête 
 **Ruban_test_main :** \
 
 meme code que le ruban / cloth mais pour la VR
+
+**Select** \
+clic touche C : créer ruban \
+clic droit souris : arrêter ruban \
+clic milieu : mode cloth ON/OFF \
+clic gauche sur ruban  : le selectionne et l'affiche en jaune \
+clic espace : déplacer le ruban sélectionné\
