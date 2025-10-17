@@ -65,3 +65,10 @@ clic droit souris : arrêter ruban \
 clic milieu : mode cloth ON/OFF \
 clic gauche sur ruban  : le selectionne et l'affiche en jaune \
 clic espace : déplacer le ruban sélectionné\
+
+**Cut :** \
+clic gauche : début d'un ruban \
+clic droit : arrêter le ruban \
+clic molette : mesh <-> cloth \
+clic barre espace : déplacer ruban \
+clic c : couper le ruban (il faut être assez proche) \
