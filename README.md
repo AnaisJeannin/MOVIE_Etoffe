@@ -71,4 +71,4 @@ clic gauche : début d'un ruban \
 clic droit : arrêter le ruban \
 clic molette : mesh <-> cloth \
 clic barre espace : déplacer ruban \
-clic c : couper le ruban (il faut être assez proche) \
+clic c : couper le ruban (il faut être assez proche) 
