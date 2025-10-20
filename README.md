@@ -78,6 +78,7 @@ clic C : commencer ruban \
 clic droit : finir ruban \
 clic gauche : sélectionner un ruban \
 clic espace : déplacer le ruban sélectionner \
+clic molette : cloth <-> mesh \
 clic P : regarder si des rubans sont proches -> colorie en rouge si oui \
 clic I : coudre deux rubans proches \
 clic O : décider de ne pas coudre (peut-être pas nécessaire)
