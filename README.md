@@ -86,10 +86,10 @@ clic O : décider de ne pas coudre (peut-être pas nécessaire)
 
 **Importations VR :** \
 
-meta XR core sdk
-meta xr interaction sdk
-meta xr interaction sdk essentials
-xr hands
-xr interaction toolkit
+meta XR core sdk \
+meta xr interaction sdk \
+meta xr interaction sdk essentials \
+xr hands \
+xr interaction toolkit \
 xr plugin management
 
