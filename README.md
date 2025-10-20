@@ -72,3 +72,12 @@ clic droit : arrêter le ruban \
 clic molette : mesh <-> cloth \
 clic barre espace : déplacer ruban \
 clic c : couper le ruban (il faut être assez proche) 
+
+**CoudreV0 :** \
+clic C : commencer ruban \
+clic droit : finir ruban \
+clic gauche : sélectionner un ruban \
+clic espace : déplacer le ruban sélectionner \
+clic P : regarder si des rubans sont proches -> colorie en rouge si oui \
+clic I : coudre deux rubans proches \
+clic O : décider de ne pas coudre (peut-être pas nécessaire)
