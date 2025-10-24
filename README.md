@@ -95,6 +95,18 @@ clic I : coudre deux rubans proches \
 clic O : décider de ne pas coudre (peut-être pas nécessaire) \
 clic M : modifier un ruban
 
+**DemoV2 :** \
+clic R : commencer ruban \
+clic droit : arrêter ruban \
+clic gauche : sélectionner un ruban \
+clic espace : déplacer le ruban sélectionner \
+clic molette : cloth <-> mesh \
+clic P : mode couture activé \
+-> sélectionner les 2 à coudre \
+clic I : coudre deux rubans proches \
+clic O : décider de ne pas coudre (peut-être pas nécessaire) \
+clic M : modifier un ruban
+
 
 
 **Importations VR :** \
