@@ -104,10 +104,20 @@ clic molette : cloth <-> mesh \
 clic P : mode couture activé \
 -> sélectionner les 2 à coudre \
 clic I : coudre deux rubans proches \
-clic O : décider de ne pas coudre (peut-être pas nécessaire) \
 clic M : modifier un ruban
 
-
+**MateriauxV0 :** \
+clic R : commencer ruban \
+clic droit : arrêter ruban \
+clic gauche : sélectionner un ruban \
+clic espace : déplacer le ruban sélectionner \
+clic molette : cloth <-> mesh \
+clic P : mode couture activé \
+-> sélectionner les 2 à coudre \
+clic I : coudre deux rubans proches \
+clic M : modifier un ruban \
+clic O : met le matériaux soie sur le ruban sélectionné une fois en cloth \
+Il faut importer un package https://docs.unity3d.com/Packages/com.unity.render-pipelines.high-definition@11.0/manual/silk-shader.html
 
 **Importations VR :** \
 meta XR core sdk \
