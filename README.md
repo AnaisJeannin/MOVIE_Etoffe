@@ -83,9 +83,21 @@ clic P : regarder si des rubans sont proches -> colorie en rouge si oui \
 clic I : coudre deux rubans proches \
 clic O : décider de ne pas coudre (peut-être pas nécessaire)
 
+**DemoV1 :** \
+clic R : commencer ruban \
+clic droit : arrêter ruban \
+clic gauche : sélectionner un ruban \
+clic espace : déplacer le ruban sélectionner \
+clic molette : cloth <-> mesh \
+clic P : mode couture activé \
+-> pour coudre (si 2 rubans sont rouges) : sélectionner celui de droite puis \
+clic I : coudre deux rubans proches \
+clic O : décider de ne pas coudre (peut-être pas nécessaire) \
+clic M : modifier un ruban
+
+
 
 **Importations VR :** \
-
 meta XR core sdk \
 meta xr interaction sdk \
 meta xr interaction sdk essentials \
