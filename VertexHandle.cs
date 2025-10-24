@@ -18,12 +18,8 @@ public class VertexHandle : MonoBehaviour
     Mesh originalMesh;
     Mesh clonedMesh;
     MeshFilter meshFilter;
-    //Vector3[] vertices;
-    //Vector3[] modifiedVertices;
-    //int[] triangles;
     public void Init(DemoV0 manager, GameObject ruban, int vertexIndex, Mesh original)
     {
-        //InitMesh(ruban);
         this.manager = manager;
         this.ruban = ruban;
         this.vertexIndex = vertexIndex;
@@ -33,8 +29,6 @@ public class VertexHandle : MonoBehaviour
         originalMesh = original;
 
         clonedMesh = meshFilter.mesh;
-        //vertices = clonedMesh.vertices;
-        //modifiedVertices = clonedMesh.vertices;
     }
 
     void OnMouseDown()
@@ -61,30 +55,9 @@ public class VertexHandle : MonoBehaviour
             SmoothDeform(vertexIndex, delta);
         }
 
-        if (Input.GetKeyDown(KeyCode.R))
+        if (Input.GetKeyDown(KeyCode.U))
             Reset();
     }
-
-    /*
-    public void InitMesh(GameObject ruban)
-    {
-        meshFilter = ruban.GetComponent<MeshFilter>();
-        originalMesh = meshFilter.sharedMesh; 
-        clonedMesh = new Mesh(); 
-
-        clonedMesh.name = "clone";
-        clonedMesh.vertices = originalMesh.vertices;
-        clonedMesh.triangles = originalMesh.triangles;
-        clonedMesh.normals = originalMesh.normals;
-        clonedMesh.uv = originalMesh.uv;
-        meshFilter.mesh = clonedMesh;  
-
-        vertices = clonedMesh.vertices; 
-        modifiedVertices = clonedMesh.vertices;
-        triangles = clonedMesh.triangles;
-        Debug.Log("Init & Cloned");
-    }
-    */
 
     public void Reset()
     {
@@ -96,8 +69,6 @@ public class VertexHandle : MonoBehaviour
             meshFilter.mesh = clonedMesh; 
 
             manager.UpdateHandlesPositions(ruban, clonedMesh.vertices);
-            //vertices = clonedMesh.vertices; 
-            //triangles = clonedMesh.triangles;
         }
     }
     
@@ -106,7 +77,6 @@ public class VertexHandle : MonoBehaviour
     {
         clonedMesh = meshFilter.mesh;
         Vector3[] vertices = clonedMesh.vertices;
-        //Vector3[] modifiedVertices = (Vector3[])currentVertices.Clone();
 
         Vector3 targetVertexPos = vertices[selectedIndex];
         float sqrRadius = radius * radius;
