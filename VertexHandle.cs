@@ -5,7 +5,7 @@ using static UnityEditor.Searcher.SearcherWindow.Alignment;
 
 public class VertexHandle : MonoBehaviour
 {
-    private DemoV0 manager;
+    private DemoV3 manager;
     private GameObject ruban;
     private int vertexIndex;
     private Camera cam;
@@ -18,7 +18,7 @@ public class VertexHandle : MonoBehaviour
     Mesh originalMesh;
     Mesh clonedMesh;
     MeshFilter meshFilter;
-    public void Init(DemoV0 manager, GameObject ruban, int vertexIndex, Mesh original)
+    public void Init(DemoV3 manager, GameObject ruban, int vertexIndex, Mesh original)
     {
         this.manager = manager;
         this.ruban = ruban;
@@ -92,7 +92,7 @@ public class VertexHandle : MonoBehaviour
             float distance = Mathf.Sqrt(sqrMagnitude);
             float falloff = GaussFalloff(distance, radius);
 
-            // applique le déplacement atténué
+            // applique le dÃ©placement attÃ©nuÃ©
             vertices[i] += delta * falloff * force;
         }
 
