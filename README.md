@@ -127,3 +127,23 @@ xr hands \
 xr interaction toolkit \
 xr plugin management
 
+**DemoV3** \
+Fonctionne avec VertexHandle pour modifier les meshs des rubans ( Attention bug : faire attention de ne pas avoir un fichier qui fait référence à vertexHandle en même temps (version précédente par exemple), si c'est le cas, commenter la ligne "handle.GetComponent<VertexHandle>().Init(this, ruban, i, original);" dans la fonction ShowVertices du fichier non utile). VertexHandle (radius = 0.2, force = 1) doit aussi être un script de l'objet mesh/meshcreator.\
+
+Scene : \
+Ajouter 3 boutons (dans + , UI, Button - TextMeshPro ), les disposer dans un coin du canvas (les boutons se mettent tout seul en enfant d'un canvas), modifier le Text(TMP) (enfant de chaque bouton) en Modify, Sew, Cloth.\
+Ajouter un Text (dans +, UI, Text-TextMeshPro), le laisser vide (effacer si quelque chose est écrit), le mettre au milieu du canvas. \
+Glisser les boutons et le Text (objets qui viennent d'être créés) sur le code DemoV3 attaché à l'objet (mesh/meshcreator?) aux emplacements prévus. \
+Pour la fonction modifier, on a besoin d'un prefab de sphère (vertexHandlePrefab) :Scale (1,1,1),  Sphere collider (radius = 1).\
+
+clic R : commencer ruban \
+clic droit : arrêter ruban \
+clic gauche : sélectionner un ruban \
+clic espace : déplacer le ruban sélectionner \
+bouton Cloth: cloth <-> mesh \
+bouton Sew : mode couture activé \
+-> sélectionner les 2 à coudre \
+clic I : coudre deux rubans proches \
+bouton Modify : modifier un ruban
+
+
