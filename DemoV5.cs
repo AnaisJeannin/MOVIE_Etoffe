@@ -935,6 +935,14 @@ public class DemoV5 : MonoBehaviour
             {
                 StartCoroutine(ShowTemporaryMessage("Selectionnez un ruban à modifier !"));
             }
+
+            if (rubanSelectionne != null)
+            {
+                Mesh rubanMesh = rubanSelectionne.GetComponent<MeshFilter>().mesh;
+                Vector3[] vertices = rubanMesh.vertices;
+                if (vertexHandles.Count == 0)
+                    ShowVertices(rubanSelectionne);
+            }
         }
 
         if (!modeModify)
