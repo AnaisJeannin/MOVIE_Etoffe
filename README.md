@@ -186,3 +186,15 @@ clic V : met le matériaux satin sur le ruban sélectionné en mesh \
 clic J : met le matériaux nylon sur le ruban sélectionné en mesh \
 Il faut importer un package https://docs.unity3d.com/Packages/com.unity.render-pipelines.high-definition@11.0/manual/silk-shader.html
 
+**DemoV5** \
+clic R : commencer ruban \
+clic droit : arrêter ruban \
+clic gauche : sélectionner un ruban \
+clic espace : déplacer le ruban sélectionner \
+bouton Cloth: cloth <-> mesh \
+bouton Sew : mode couture activé \
+-> sélectionner les 2 à coudre \
+clic I : coudre deux rubans proches \
+bouton Modify : modifier un ruban \
+Dropdown: choix du matériau \
+Il faut importer un package https://docs.unity3d.com/Packages/com.unity.render-pipelines.high-definition@11.0/manual/silk-shader.html
