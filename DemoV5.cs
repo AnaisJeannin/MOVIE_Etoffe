@@ -67,8 +67,6 @@ public class DemoV5 : MonoBehaviour
 
     public TMP_Dropdown materialDropdown;
 
-
-
     void Start()
     {
         if (mainCamera == null)
@@ -97,7 +95,7 @@ public class DemoV5 : MonoBehaviour
         spawnDistance = Mathf.Clamp(spawnDistance, 1f, 100f);
 
         // Création d'un ruban (clic R)
-        if (Input.GetKeyDown(KeyCode.R) && MeshCreation == null && !modeCloth && !coutureActive)
+        if (Input.GetKeyDown(KeyCode.R) && MeshCreation == null && !modeCloth && !coutureActive && !modeModify)
         {
             NewMesh();
             MeshCreation = StartCoroutine(NewVertexes());
@@ -455,7 +453,6 @@ public class DemoV5 : MonoBehaviour
         SkinnedMeshRenderer smr = ruban.GetComponent<SkinnedMeshRenderer>();
         MeshRenderer renderer = ruban.GetComponent<MeshRenderer>();
         MeshFilter filter = ruban.GetComponent<MeshFilter>();
-        MeshCollider oldCollider = ruban.GetComponent<MeshCollider>();
 
         if (cloth == null)
         {
@@ -465,7 +462,6 @@ public class DemoV5 : MonoBehaviour
 
             Destroy(renderer);
             Destroy(filter);
-            Destroy(oldCollider);
 
             smr = ruban.AddComponent<SkinnedMeshRenderer>();
             smr.sharedMesh = mesh;
