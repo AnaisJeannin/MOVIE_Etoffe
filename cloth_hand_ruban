@@ -1,0 +1,613 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using Object = UnityEngine.Object;
+using Oculus.Interaction;
+using Oculus.Interaction.HandGrab;
+using System.Linq;
+using UnityEditor;
+using UnityEngine.UI;
+using TMPro;
+using UnityEngine.XR.Interaction.Toolkit;
+
+[RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
+public class MeshTimer : MonoBehaviour
+{
+    Mesh mesh;
+
+    [Header("Hand Tracking")]
+    public OVRHand hand;    // permet de détecter le geste de la main
+    public OVRSkeleton skeleton;    // permet d'avoir ccès aux positions des doigts
+    public OVRHand.HandFinger fingerToTrack1 = OVRHand.HandFinger.Index;    // fingerToTrack = ici on suit l'index
+
+    public GameObject textureSelector;
+    public GameObject grabPrefab;
+
+    private Dictionary<OVRSkeleton.BoneId, OVRBone> bones = new();
+
+    [Header("Mesh Settings")]
+    public float spawnDistance = 0.5f;
+    public float scrollSpeed = 5f;
+
+    [Header("Camera")]
+    public Camera mainCamera;
+
+    public event Action<Mesh> MeshCreated;
+
+    Vector3[] verticesAct;
+    Vector3[] verticesPre;
+    bool isDrawing = false;  // (remplace clicCount)
+    List<Vector3> mousePosition = new List<Vector3>();  // (on a gardé le nom mousePosition mais du coup c'est la position de l'index pour l'instant)
+
+    int[] triangles;
+    int verticesCount = 4;
+    int trianglesCount = 2;
+
+    public List<GameObject> rubans = new List<GameObject>();
+    Coroutine MeshCreation;
+    private GameObject newRuban;
+
+    public TextMeshProUGUI messageText;
+
+    bool modeCloth = false;
+    bool coutureActive = false;
+    bool modeModify = false;
+
+    private GameObject rubanEnCours;
+    private GameObject rubanSelectionne;
+
+    //Modification des vertices
+    public GameObject vertexHandlePrefab;
+    private List<GameObject> vertexHandles = new List<GameObject>();
+
+    //Création de bouttons
+    public Button Cloth_button, Modify_button, Sew_button;
+    public bool modify_clicked = false, sew_clicked = false, cloth_clicked = false;
+
+    private float lastClothToggleTime = 0f;
+    private float clothToggleCooldown = 0.3f; // 300 ms pour ignorer les doubles appels rapides
+
+    private float lastSewToggleTime = 0f;
+    private float sewToggleCooldown = 0.3f; // 300 ms pour ignorer les doubles appels rapides
+
+    private float lastModifyToggleTime = 0f;
+    private float modifyToggleCooldown = 0.3f; // 300 ms pour ignorer les doubles appels rapides
+
+    void Start()
+    {
+        textureSelector.SetActive(true);
+        if (mainCamera == null)
+            mainCamera = Camera.main;
+
+        if (hand != null && skeleton == null)
+        {
+            skeleton = hand.GetComponent<OVRSkeleton>();    // si on ne trouve pas le squelette on essaie de le récupérer via composant de la main
+        }
+
+        Cloth_button.onClick.AddListener(ClothButton); //avec souris
+        Modify_button.onClick.AddListener(ModifyButton);
+        Sew_button.onClick.AddListener(SewButton);
+    }
+
+    void Update()
+    {
+        if (hand == null || skeleton == null)
+            return;  // main et squelettes non dispos 
+
+        ///////// Bibliothèque positions de la main ////////////
+
+        bool isPinching = hand.GetFingerIsPinching(fingerToTrack1);  //vérifie si index est en train de pinch
+        bool isThumbsUp = hand.GetFingerPinchStrength(OVRHand.HandFinger.Thumb) > 0.3f;
+
+        ///////// Appel fonctions ////////
+
+        if (!isDrawing && isPinching && !modeCloth && !modeModify && !coutureActive)
+        {
+            textureSelector.SetActive(false);
+            isDrawing = true;
+            NewMesh();
+            MeshCreation = StartCoroutine(NewVertexes());
+            Debug.Log("Début du dessin");
+        }
+
+        else if (isDrawing && !isPinching && !modeCloth && !modeModify && !coutureActive)
+        {
+            StopCoroutine(MeshCreation);
+            MeshCreation = null;
+            isDrawing = false;
+            Debug.Log("Fin du dessin");
+
+            // grab le ruban au runtime 
+            Rigidbody rb = newRuban.GetComponent<Rigidbody>();
+            if (rb == null)
+            {
+                rb = newRuban.AddComponent<Rigidbody>();
+            }
+            rb.useGravity = false;
+            rb.isKinematic = true;
+
+            // Ensure we have a collider (CreatePrimitive gives one already)
+            MeshCollider col = newRuban.GetComponent<MeshCollider>();
+            if (col == null)
+            {
+                col = newRuban.AddComponent<MeshCollider>();
+                col.convex = true;
+            }
+
+            // Add interaction components
+            // 1. Grabbable
+            var grabbable = newRuban.AddComponent<Grabbable>();
+            grabbable.InjectOptionalRigidbody(rb);
+
+            // 2. GrabInteractable (for controllers)
+            var grabInteractable = newRuban.AddComponent<GrabInteractable>();
+            // assign required fields (check in your SDK inspector to confirm)
+            grabInteractable.InjectRigidbody(rb);
+            grabInteractable.InjectOptionalPointableElement(grabbable);
+
+            // 3. HandGrabInteractable (for hand tracking)
+            var handGrabInteractable = newRuban.AddComponent<HandGrabInteractable>();
+            handGrabInteractable.InjectRigidbody(rb);
+            handGrabInteractable.InjectOptionalPointableElement(grabbable);
+
+            Debug.Log("Runtime grabbable newRuban created and configured.");
+
+            textureSelector.SetActive(true);
+
+            // 4. PokeInteractable (pointeur main sans rayon)
+            var pokeInteractable = newRuban.AddComponent<PokeInteractable>(); 
+
+
+            // 5. Wrapper d’événements Unity
+            var pokeWrapper = newRuban.AddComponent<InteractableUnityEventWrapper>();
+            pokeWrapper.InjectInteractableView(pokeInteractable);
+            pokeWrapper.WhenSelect.AddListener(() =>
+            {
+                Debug.Log($"Ruban {newRuban.name} touché !");
+            });
+            pokeWrapper.WhenUnselect.AddListener(() =>
+            {
+                Debug.Log($"Ruban {newRuban.name} relâché !");
+            });
+
+            Debug.Log("Ruban configuré pour la main et le pointeur direct."); 
+        }
+
+    }
+
+    bool IsFingerExtended(OVRHand.HandFinger finger)
+    {
+        // Vérifie que les os du squelette ont bien été récupérés
+        if (bones.Count == 0 || !bones.ContainsKey(OVRSkeleton.BoneId.Hand_WristRoot))
+            return false;
+
+        // Récupère les os utiles : la paume et le bout du doigt
+        OVRSkeleton.BoneId tipId = GetTipBone(finger);
+        if (!bones.ContainsKey(tipId)) return false;
+
+        OVRBone tip = bones[tipId];
+        OVRBone palm = bones[OVRSkeleton.BoneId.Hand_WristRoot];
+
+        // Direction du doigt (du centre de la main vers le bout)
+        Vector3 dir = (tip.Transform.position - palm.Transform.position).normalized;
+
+        // Orientation de la paume
+        Vector3 palmForward = palm.Transform.forward;
+
+        // Produit scalaire (dot product) pour mesurer si le doigt pointe
+        // dans la même direction que la paume
+        float dot = Vector3.Dot(dir, palmForward);
+
+        // Si le doigt est dans la même direction que la paume → il est tendu
+        return dot > 0.3f;
+    }
+
+    OVRSkeleton.BoneId GetTipBone(OVRHand.HandFinger finger)
+    {
+        return finger switch
+        {
+            OVRHand.HandFinger.Thumb => OVRSkeleton.BoneId.Hand_ThumbTip,
+            OVRHand.HandFinger.Index => OVRSkeleton.BoneId.Hand_IndexTip,
+            OVRHand.HandFinger.Middle => OVRSkeleton.BoneId.Hand_MiddleTip,
+            OVRHand.HandFinger.Ring => OVRSkeleton.BoneId.Hand_RingTip,
+            OVRHand.HandFinger.Pinky => OVRSkeleton.BoneId.Hand_PinkyTip,
+            _ => OVRSkeleton.BoneId.Invalid
+        };
+    }
+
+    void NewMesh()
+    {
+        newRuban = new GameObject("Ruban");
+        newRuban.transform.SetParent(this.transform);
+        rubans.Add(newRuban);
+
+        MeshRenderer meshRenderer = newRuban.AddComponent<MeshRenderer>();
+        MeshFilter meshFilter = newRuban.AddComponent<MeshFilter>();
+
+        meshRenderer.material = GetComponent<MeshRenderer>().material;
+        meshRenderer.material.SetInt("_Cull", (int)UnityEngine.Rendering.CullMode.Off);
+
+        Mesh newMesh = new Mesh();
+        meshFilter.mesh = newMesh;
+        mesh = newMesh;
+
+        // Première position de départ
+        Vector3 fingerPos = GetIndexTipPosition();
+        Vector3 ThumbPos = GetThumbTipPosition();
+        mousePosition.Add(fingerPos);
+
+        verticesPre = new Vector3[4];
+        verticesPre[0] = new Vector3(fingerPos.x - 0.1f, fingerPos.y, fingerPos.z);
+        verticesPre[1] = new Vector3(fingerPos.x - 0.1f, fingerPos.y + 0.1f, fingerPos.z);
+        verticesPre[2] = fingerPos;
+        verticesPre[3] = new Vector3(fingerPos.x, fingerPos.y + 0.1f, fingerPos.z);
+
+        verticesCount = 4;
+        trianglesCount = 2;
+        mousePosition.Clear();
+
+        CreateShape();
+        UpdateMesh();
+        MeshCreated?.Invoke(mesh);
+    }
+
+    IEnumerator NewVertexes()
+    {
+        while (true)
+        {
+            Vector3 fingerPos = GetIndexTipPosition();
+            mousePosition.Add(fingerPos);
+
+            verticesCount += 2;
+            trianglesCount += 2;
+            CreateShape();
+            UpdateMesh();
+            MeshCreated?.Invoke(mesh);
+            yield return new WaitForSeconds(0.01f);
+
+        }
+    }
+
+    void CreateShape()
+    {
+        verticesAct = new Vector3[verticesCount];
+
+        for (int j = 0; j < verticesPre.Length; j++)
+        {
+            verticesAct[j] = verticesPre[j];
+        }
+
+        if (verticesCount > 4)
+        {
+            int offset = 4;
+            for (int n = 0; n < mousePosition.Count; n++)
+            {
+                int i = offset + n * 2;
+                verticesAct[i] = mousePosition[n];
+                verticesAct[i + 1] = new Vector3(mousePosition[n].x, mousePosition[n].y + 0.1f, mousePosition[n].z);
+            }
+        }
+
+        triangles = new int[trianglesCount * 3];
+        triangles[0] = 0;
+        triangles[1] = 1;
+        triangles[2] = 2;
+        triangles[3] = 3;
+        triangles[4] = 2;
+        triangles[5] = 1;
+
+        if (trianglesCount > 2)
+        {
+            for (int i = 2; i < trianglesCount; i += 2)
+            {
+                int tri = i * 3;
+                triangles[tri + 0] = i;
+                triangles[tri + 1] = i + 1;
+                triangles[tri + 2] = i + 2;
+                triangles[tri + 3] = i + 3;
+                triangles[tri + 4] = i + 2;
+                triangles[tri + 5] = i + 1;
+            }
+        }
+    }
+
+    void UpdateMesh()
+    {
+        mesh.Clear();
+        mesh.vertices = verticesAct;
+        mesh.triangles = triangles;
+        mesh.RecalculateNormals();
+    }
+
+    public Vector3 GetIndexTipPosition()  // OVRSkeleton pour récupérer la position 3D précise du bout de l'index
+    {
+        if (skeleton == null || !skeleton.IsDataValid || !skeleton.IsDataHighConfidence)
+            return Vector3.zero;    // positions du squelette valides et fiables ?
+
+        foreach (var bone in skeleton.Bones)   //parcourt la liste des bones
+        {
+            if (bone.Id == OVRSkeleton.BoneId.Hand_Index3)   // si on trouve l'index
+                return bone.Transform.position;                // donne la position du bone dans le monde
+        }
+
+        return Vector3.zero;    // donne vecteur 0 si pas trouvé
+    }
+
+    Vector3 GetThumbTipPosition()  // OVRSkeleton pour récupérer la position 3D précise du bout du pouce
+    {
+        if (skeleton == null || !skeleton.IsDataValid || !skeleton.IsDataHighConfidence)
+            return Vector3.zero;    // positions du squelette valides et fiables ?
+
+        foreach (var bone in skeleton.Bones)   //parcourt la liste des bones
+        {
+            if (bone.Id == OVRSkeleton.BoneId.Hand_ThumbTip)   // si on trouve le pouce
+                return bone.Transform.position;                // donne la position du bone dans le monde
+        }
+
+        return Vector3.zero;    // donne vecteur 0 si pas trouvé
+    }
+
+    void ToggleCloth(GameObject ruban)
+    {
+        if (ruban == null)
+        {
+            Debug.LogWarning("Ruban null !");
+            return;
+        }
+
+        Debug.Log("ToggleCloth commencé pour " + ruban.name);
+
+        // Vérifie les composants existants
+        Cloth cloth = ruban.GetComponent<Cloth>();
+        SkinnedMeshRenderer smr = ruban.GetComponent<SkinnedMeshRenderer>();
+        MeshRenderer meshRenderer = ruban.GetComponent<MeshRenderer>();
+        MeshFilter meshFilter = ruban.GetComponent<MeshFilter>();
+
+        Debug.Log($"Components - Cloth: {cloth}, SkinnedMeshRenderer: {smr}, MeshRenderer: {meshRenderer}, MeshFilter: {meshFilter}");
+
+        // Si Cloth n'existe pas -> on l'active
+        if (cloth == null)
+        {
+            if (meshFilter == null || meshRenderer == null)
+            {
+                Debug.LogError("Impossible de convertir en Cloth : MeshFilter ou MeshRenderer manquant !");
+                return;
+            }
+
+            Mesh mesh = meshFilter.sharedMesh;
+            Material mat = meshRenderer.sharedMaterial;
+
+            // Supprimer les composants non nécessaires
+            DestroyImmediate(meshRenderer);
+            DestroyImmediate(meshFilter);
+
+            // Ajouter SkinnedMeshRenderer
+            smr = ruban.GetComponent<SkinnedMeshRenderer>();
+            if (smr == null)
+                smr = ruban.AddComponent<SkinnedMeshRenderer>();
+            smr.sharedMesh = mesh;
+            smr.material = mat;
+
+            // Ajouter le Cloth
+            cloth = ruban.AddComponent<Cloth>();
+            cloth.useGravity = true;
+            cloth.worldVelocityScale = 1f;
+            cloth.worldAccelerationScale = 1f;
+            cloth.damping = 0.2f;
+            cloth.stretchingStiffness = 0.6f;
+            cloth.bendingStiffness = 0.6f;
+
+            // Fixer le premier vertex
+            ClothSkinningCoefficient[] coefficients = cloth.coefficients;
+            if (coefficients.Length > 0)
+            {
+                coefficients[0].maxDistance = 0f;
+                cloth.coefficients = coefficients;
+            }
+
+            Debug.Log("Cloth activé !");
+            modeCloth = true;
+        }
+        else
+        {
+            // Sauvegarder mesh et material
+            if (smr == null)
+            {
+                Debug.LogError("SkinnedMeshRenderer manquant, impossible de désactiver Cloth !");
+                return;
+            }
+
+            Mesh mesh = smr.sharedMesh;
+            Material mat = smr.material;
+
+            DestroyImmediate(cloth);
+            DestroyImmediate(smr);
+
+            // Recréer MeshFilter et MeshRenderer
+            meshFilter = ruban.AddComponent<MeshFilter>();
+            meshFilter.mesh = mesh;
+
+            meshRenderer = ruban.AddComponent<MeshRenderer>();
+            meshRenderer.material = mat;
+
+            // Ajouter MeshCollider si nécessaire
+            MeshCollider collider = ruban.GetComponent<MeshCollider>();
+            if (collider == null)
+                collider = ruban.AddComponent<MeshCollider>();
+            collider.sharedMesh = mesh;
+
+            Debug.Log("Cloth désactivé !");
+            modeCloth = false;
+        }
+    }
+
+    //Modification des vertices d'un ruban
+    public void ShowVertices(GameObject ruban)
+    {
+        MeshFilter filter = ruban.GetComponent<MeshFilter>();
+        Mesh original = filter.sharedMesh;
+
+        Mesh cloned = new Mesh();
+        cloned.name = "clone";
+        cloned.vertices = original.vertices;
+        cloned.triangles = original.triangles;
+        cloned.normals = original.normals;
+        filter.mesh = cloned;
+
+        vertexHandles.Clear();
+        for (int i = 0; i < cloned.vertices.Length; i++)
+        {
+            Vector3 vertexPos = ruban.transform.TransformPoint(cloned.vertices[i]);
+            GameObject handle = Instantiate(vertexHandlePrefab, vertexPos, Quaternion.identity);
+            handle.transform.localScale = Vector3.one * 0.05f;
+            handle.GetComponent<VertexHandle>().Init(this, ruban, i, original);
+            vertexHandles.Add(handle);
+        }
+
+    }
+
+    public void UpdateHandlesPositions(GameObject ruban, Vector3[] vertices)
+    {
+        if (vertexHandles.Count == 0) return;
+
+        for (int i = 0; i < vertices.Length && i < vertexHandles.Count; i++)
+        {
+            Vector3 Pos = ruban.transform.TransformPoint(vertices[i]);
+            vertexHandles[i].transform.position = Pos;
+        }
+    }
+    public void DeleteVerticesShowed()
+    {
+        foreach (var handle in vertexHandles)
+            Destroy(handle);
+        vertexHandles.Clear();
+    }
+
+
+    //Fonctionnement des boutons
+    public void ClothButton()
+    {
+        // Vérifier cooldown pour éviter double trigger
+        if (Time.time - lastClothToggleTime < clothToggleCooldown)
+            return;
+
+        lastClothToggleTime = Time.time;
+
+        cloth_clicked = !cloth_clicked;
+        modeCloth = cloth_clicked;
+        Debug.Log("Mode Cloth " + (cloth_clicked ? "activé" : "désactivé"));
+
+        if (modify_clicked)
+        {
+            modify_clicked = false;
+            modeModify = false;
+            DeleteVerticesShowed();
+            Modify_button.GetComponent<Image>().color = Color.white;
+        }
+
+        if (sew_clicked)
+        {
+            sew_clicked = false;
+            coutureActive = false;
+            Sew_button.GetComponent<Image>().color = Color.white;
+        }
+
+        Cloth_button.GetComponent<Image>().color = cloth_clicked ? Color.green : Color.white;
+
+        foreach (var r in rubans)
+            ToggleCloth(r);
+
+        if (MeshCreation != null)
+        {
+            StopCoroutine(MeshCreation);
+            MeshCreation = null;
+        }
+    }
+
+    public void ModifyButton()
+    {
+        // Vérifier cooldown pour éviter double trigger
+        if (Time.time - lastModifyToggleTime < modifyToggleCooldown)
+            return;
+
+        lastModifyToggleTime = Time.time;
+
+        modify_clicked = !modify_clicked;
+        modeModify = modify_clicked;
+        Debug.Log("Mode Modification " + (modify_clicked ? "activé" : "désactivé"));
+
+        if (modeCloth)
+        {
+            cloth_clicked = false;
+            modeCloth = false;
+
+            foreach (var r in rubans)
+                ToggleCloth(r);
+
+            Cloth_button.GetComponent<Image>().color = Color.white;
+        }
+
+        if (sew_clicked)
+        {
+            sew_clicked = false;
+            coutureActive = false;
+            Sew_button.GetComponent<Image>().color = Color.white;
+        }
+
+        Modify_button.GetComponent<Image>().color = modify_clicked ? Color.green : Color.white;
+
+        if (modeModify)
+        {
+            if (rubanSelectionne == null)
+            {
+                StartCoroutine(ShowTemporaryMessage("Selectionnez un ruban à modifier !"));
+            }
+        }
+
+        if (!modeModify)
+            DeleteVerticesShowed();
+    }
+
+    public void SewButton()
+    {
+        // Vérifier cooldown pour éviter double trigger
+        if (Time.time - lastSewToggleTime < sewToggleCooldown)
+            return;
+
+        lastSewToggleTime = Time.time;
+
+        sew_clicked = !sew_clicked;
+        coutureActive = sew_clicked;
+        Debug.Log("Mode Couture " + (sew_clicked ? "activé" : "désactivé"));
+
+        if (modeCloth)
+        {
+            cloth_clicked = false;
+            modeCloth = false;
+
+            foreach (var r in rubans)
+                ToggleCloth(r);
+
+            Cloth_button.GetComponent<Image>().color = Color.white;
+        }
+
+        if (modify_clicked)
+        {
+            modify_clicked = false;
+            modeModify = false;
+            DeleteVerticesShowed();
+            Modify_button.GetComponent<Image>().color = Color.white;
+        }
+
+        Sew_button.GetComponent<Image>().color = sew_clicked ? Color.green : Color.white;
+    }
+
+    //Coroutine pour afficher un message temporaire
+    IEnumerator ShowTemporaryMessage(string msg, float duration = 3f)
+    {
+        messageText.text = msg;
+        yield return new WaitForSeconds(duration);
+        messageText.text = "";
+    }
+}
