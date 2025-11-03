@@ -1,0 +1,110 @@
+
+using UnityEngine;
+using Oculus.Interaction;
+
+public class VertexHandleVR : MonoBehaviour
+{
+    private GameObject ruban;
+    private int vertexIndex;
+    private Grabbable grabbable;
+    public float radius = 10f;
+    public float force = 1.0f;
+    Mesh originalMesh;
+    Mesh clonedMesh;
+    MeshFilter meshFilter;
+    private Vector3 lastPosition;
+    private bool isGrabbed = false;
+
+    public void Init(GameObject ruban, int vertexIndex, Mesh original)
+    {
+        this.ruban = ruban;
+        this.vertexIndex = vertexIndex;
+        this.originalMesh = original;
+        meshFilter = ruban.GetComponent<MeshFilter>();
+        clonedMesh = meshFilter.mesh;
+        grabbable = GetComponent<Grabbable>();
+
+        if (grabbable != null)
+        {
+            grabbable.WhenPointerEventRaised += OnGrabEvent;
+        }
+        lastPosition = transform.position;
+    }
+
+    private void OnGrabEvent(PointerEvent evt)
+    {
+        if (evt.Type == PointerEventType.Select)
+        {
+            isGrabbed = true;
+            lastPosition = transform.position;
+            Debug.Log($"Vertex {vertexIndex} grabbed !");
+        }
+        else if (evt.Type == PointerEventType.Unselect)
+        {
+            isGrabbed = false;
+            Debug.Log($"Vertex {vertexIndex} released !");
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (grabbable != null)
+            grabbable.WhenPointerEventRaised -= OnGrabEvent;
+    }
+
+    void Update()
+    {
+        if (isGrabbed)
+        {
+            Vector3 newPos = transform.position;
+            Vector3 delta = newPos - lastPosition;
+            if (delta.sqrMagnitude > 0.000001f)
+            {
+                SmoothDeform(vertexIndex, delta);
+                lastPosition = newPos;
+            }
+        }
+
+        if (Input.GetKeyDown(KeyCode.U))
+            Reset();
+    }
+
+    public void Reset()
+    {
+        if (clonedMesh != null && originalMesh != null)
+        {
+            clonedMesh.vertices = originalMesh.vertices;
+            clonedMesh.triangles = originalMesh.triangles;
+            clonedMesh.normals = originalMesh.normals;
+            meshFilter.mesh = clonedMesh;
+        }
+    }
+
+    void SmoothDeform(int selectedIndex, Vector3 delta)
+    {
+        clonedMesh = meshFilter.mesh;
+        Vector3[] vertices = clonedMesh.vertices;
+        Vector3 targetVertexPos = vertices[selectedIndex];
+        float sqrRadius = radius * radius;
+
+        for (int i = 0; i < vertices.Length; i++)
+        {
+            Vector3 currentVertexPos = vertices[i];
+            float sqrMagnitude = (currentVertexPos - targetVertexPos).sqrMagnitude;
+            if (sqrMagnitude > sqrRadius)
+                continue;
+            float distance = Mathf.Sqrt(sqrMagnitude);
+            float falloff = GaussFalloff(distance, radius);
+            vertices[i] += delta * falloff * force;
+        }
+
+        clonedMesh.vertices = vertices;
+        clonedMesh.RecalculateNormals();
+        meshFilter.mesh = clonedMesh;
+    }
+
+    float GaussFalloff(float distance, float radius)
+    {
+        return Mathf.Exp(-(distance * distance) / (2 * radius * radius));
+    }
+}
