@@ -1,0 +1,129 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using Object = UnityEngine.Object;
+using Oculus.Interaction;
+using Oculus.Interaction.HandGrab;
+using System.Linq;
+using UnityEditor;
+using UnityEngine.UI;
+using TMPro;
+using UnityEngine.XR.Interaction.Toolkit;
+
+public class HandRubanSelector : MonoBehaviour
+{
+    public MeshTimer manager;
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (!manager.rubans.Contains(other.gameObject)) return;
+
+        if (manager.coutureActive)
+        {
+            manager.modeCloth = false;
+            if (manager.rubanSelectionne != manager.rubanSelectionne1 && manager.rubanSelectionne != manager.rubanSelectionne2)
+            {
+                Renderer rend = manager.rubanSelectionne.GetComponent<Renderer>();
+                if (rend) rend.material.color = Color.white;
+                manager.rubanSelectionne = null;
+            }
+
+
+            if (manager.rubanSelectionne1 == null)
+            {
+                manager.rubanSelectionne1 = other.gameObject;
+                manager.rubanSelectionne = manager.rubanSelectionne1; // Pour le déplacement
+
+                Renderer rend1 = manager.rubanSelectionne1.GetComponent<Renderer>();
+                if (rend1) rend1.material.color = Color.yellow;
+
+                Debug.Log("Ruban 1 sélectionné par collision : " + manager.rubanSelectionne1.name);
+            }
+
+            else if (manager.rubanSelectionne1 != null)
+            {
+                if (other.gameObject != manager.rubanSelectionne1)
+                {
+                    if (manager.rubanSelectionne2 != null)
+                    {
+                        // Remet la couleur normale si un ruban 2 était déjà sélectionné
+                        Renderer rend2O = manager.rubanSelectionne2.GetComponent<Renderer>();
+                        if (rend2O) rend2O.material.color = Color.white;
+                    }
+
+                    manager.rubanSelectionne2 = other.gameObject;
+                    manager.rubanSelectionne = manager.rubanSelectionne2; // Pour le déplacement
+
+                    Renderer rend2 = manager.rubanSelectionne2.GetComponent<Renderer>();
+                    if (rend2) rend2.material.color = Color.yellow;
+
+                    Debug.Log("Ruban 2 sélectionné par collision : " + manager.rubanSelectionne2.name);
+                    Debug.Log("On peut coudre");
+                }
+
+                else if (other.gameObject == manager.rubanSelectionne1)
+                {
+                    Renderer rend1 = manager.rubanSelectionne1.GetComponent<Renderer>();
+                    if (rend1) rend1.material.color = Color.white;
+
+                    manager.rubanSelectionne1 = null;
+                    Debug.Log("Ruban 1 désélectionné par collision");
+                }
+            }
+        }
+
+        else
+        {
+            manager.rubanSelectionne1 = null;
+            manager.rubanSelectionne2 = null;
+
+            // Couture désactivée, on remet toutes les couleurs normales
+            foreach (var ruban in manager.rubans)
+            {
+                Renderer rend = ruban.GetComponent<Renderer>();
+                if (rend) rend.material.color = Color.white;
+            }
+
+            if (manager.rubanSelectionne != null)
+            {
+                Renderer rend = manager.rubanSelectionne.GetComponent<Renderer>();
+                if (rend) rend.material.color = Color.yellow;
+            }
+
+
+            // Toggle : si c'était déjà sélectionné, on désélectionne
+            if (manager.rubanSelectionne == other.gameObject)
+            {
+                DeselectRuban(manager.rubanSelectionne);
+                manager.rubanSelectionne = null;
+                Debug.Log("Ruban désélectionné : " + other.gameObject.name);
+            }
+            else
+            {
+                // Deselect précédent
+                if (manager.rubanSelectionne != null)
+                    DeselectRuban(manager.rubanSelectionne);
+
+                // Sélectionner nouveau ruban
+                manager.rubanSelectionne = other.gameObject;
+                SelectRuban(manager.rubanSelectionne);
+                Debug.Log("Ruban sélectionné par collision : " + manager.rubanSelectionne.name);
+
+                if (manager.modeModify && manager.vertexHandles.Count == 0)
+                    manager.ShowVertices(manager.rubanSelectionne);
+            }
+        }
+    }
+
+    private void SelectRuban(GameObject ruban)
+    {
+        Renderer rend = ruban.GetComponent<Renderer>();
+        if (rend) rend.material.color = Color.yellow;
+    }
+
+    private void DeselectRuban(GameObject ruban)
+    {
+        Renderer rend = ruban.GetComponent<Renderer>();
+        if (rend) rend.material.color = Color.white;
+    }
+}
