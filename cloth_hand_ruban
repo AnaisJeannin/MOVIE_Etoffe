@@ -15,6 +15,8 @@ using UnityEngine.XR.Interaction.Toolkit;
 [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
 public class MeshTimer : MonoBehaviour
 {
+    public Patron patronManager;
+
     Mesh mesh;
 
     [Header("Hand Tracking")]
@@ -40,7 +42,7 @@ public class MeshTimer : MonoBehaviour
 
     Vector3[] verticesAct;
     Vector3[] verticesPre;
-    bool isDrawing = false;  // (remplace clicCount)
+    public bool isDrawing = false;  // (remplace clicCount)
     List<Vector3> mousePosition = new List<Vector3>();  // (on a gardé le nom mousePosition mais du coup c'est la position de l'index pour l'instant)
 
     int[] triangles;
@@ -68,8 +70,8 @@ public class MeshTimer : MonoBehaviour
     public List<GameObject> vertexHandles = new List<GameObject>();
 
     //Création de bouttons
-    public Button Cloth_button, Modify_button, Sew_button;
-    public bool modify_clicked = false, sew_clicked = false, cloth_clicked = false;
+    public Button Cloth_button, Modify_button, Sew_button, Patron_button, Delete_button;
+    public bool modify_clicked = false, sew_clicked = false, cloth_clicked = false, patron_clicked = false;
 
     private float lastClothToggleTime = 0f;
     private float clothToggleCooldown = 0.3f; // 300 ms pour ignorer les doubles appels rapides
@@ -79,6 +81,9 @@ public class MeshTimer : MonoBehaviour
 
     private float lastModifyToggleTime = 0f;
     private float modifyToggleCooldown = 0.3f; // 300 ms pour ignorer les doubles appels rapides
+
+    private float lastPatronToogleTime = 0f;
+    private float patronToggleCooldown = 0.3f; // 300 ms pour ignorer les doubles appels rapides
 
     // Matériaux pour les rubans
     public Material[] materials;
@@ -116,6 +121,9 @@ public class MeshTimer : MonoBehaviour
         if (mainCamera == null)
             mainCamera = Camera.main;
 
+        if (patronManager == null)
+            patronManager = FindFirstObjectByType<Patron>();
+
         if (hand != null && skeleton == null)
         {
             skeleton = hand.GetComponent<OVRSkeleton>();    // si on ne trouve pas le squelette on essaie de le récupérer via composant de la main
@@ -124,6 +132,8 @@ public class MeshTimer : MonoBehaviour
         Cloth_button.onClick.AddListener(ClothButton); 
         Modify_button.onClick.AddListener(ModifyButton);
         Sew_button.onClick.AddListener(SewButton);
+        Patron_button.onClick.AddListener(PatronButton);
+        Delete_button.onClick.AddListener(DeleteButton);
 
         materials = new Material[] { White, Soie, Coton, Denim, Laine, Velours, Lin, Satin, Nylon };
 
@@ -155,7 +165,7 @@ public class MeshTimer : MonoBehaviour
 
         ///////// Appel fonctions ////////
 
-        if (!isDrawing && IsPinching && !modeCloth && !modeModify && !coutureActive)
+        if (!isDrawing && IsPinching && !modeCloth && !modeModify && !coutureActive && !patron_clicked)
         {
             textureSelector.SetActive(false);
             isDrawing = true;
@@ -783,10 +793,19 @@ public class MeshTimer : MonoBehaviour
         foreach (var r in rubans)
             ToggleCloth(r);
 
+        foreach (var p in patronManager.patrons)
+            ToggleCloth(p);
+
         if (MeshCreation != null)
         {
             StopCoroutine(MeshCreation);
             MeshCreation = null;
+        }
+
+        if (patron_clicked)
+        {
+            patron_clicked = false;
+            Patron_button.GetComponent<Image>().color = Color.white;
         }
     }
 
@@ -830,6 +849,12 @@ public class MeshTimer : MonoBehaviour
             }
         }
 
+        if (patron_clicked)
+        {
+            patron_clicked = false;
+            Patron_button.GetComponent<Image>().color = Color.white;
+        }
+
         if (!modeModify)
             DeleteVerticesShowed();
     }
@@ -865,7 +890,78 @@ public class MeshTimer : MonoBehaviour
             Modify_button.GetComponent<Image>().color = Color.white;
         }
 
+        if (patron_clicked)
+        {
+            patron_clicked = false;
+            Patron_button.GetComponent<Image>().color = Color.white;
+        }
+
         Sew_button.GetComponent<Image>().color = sew_clicked ? Color.green : Color.white;
+    }
+
+    public void PatronButton()
+    {
+        // Vérifier cooldown pour éviter double trigger
+        if (Time.time - lastSewToggleTime < sewToggleCooldown)
+            return;
+
+        lastSewToggleTime = Time.time;
+
+
+        patron_clicked = !patron_clicked;
+        Patron_button.GetComponent<Image>().color = patron_clicked ? Color.green : Color.white;
+
+        if (modify_clicked)
+        {
+            modify_clicked = false;
+            modeModify = false;
+            DeleteVerticesShowed();
+            Modify_button.GetComponent<Image>().color = Color.white;
+        }
+
+        if (sew_clicked)
+        {
+            sew_clicked = false;
+            coutureActive = false;
+            Sew_button.GetComponent<Image>().color = Color.white;
+        }
+
+        if (modeCloth)
+        {
+            cloth_clicked = false;
+            modeCloth = false;
+
+            foreach (var r in rubans)
+                ToggleCloth(r);
+
+            Cloth_button.GetComponent<Image>().color = Color.white;
+        }
+    }
+
+    public void DeleteButton()
+    {
+        // Vérifier cooldown pour éviter double trigger
+        if (Time.time - lastModifyToggleTime < modifyToggleCooldown)
+            return;
+
+        lastModifyToggleTime = Time.time;
+
+        if (rubanSelectionne == null)
+            return;
+
+        else if (rubans.Contains(rubanSelectionne))
+        {
+            rubans.Remove(rubanSelectionne);
+            Debug.Log("ruban supprimé");
+        }
+
+        else if (patronManager.patrons.Contains(rubanSelectionne))
+        {
+            patronManager.patrons.Remove(rubanSelectionne);
+            Debug.Log("patron supprimé");
+        }
+
+        Destroy(rubanSelectionne);
     }
 
     //Coroutine pour afficher un message temporaire
@@ -921,6 +1017,47 @@ public class MeshTimer : MonoBehaviour
         Destroy(secondRuban);
     }
 
+    /* void CreateRubanFromWorldVertices(List<Vector3> worldVertices)
+    {
+        if (worldVertices.Count < 4) return;
+
+        GameObject newRuban = new GameObject("Ruban");
+        newRuban.transform.SetParent(this.transform);
+        rubans.Add(newRuban);
+
+        // Créer mesh directement dans l’espace monde
+        MeshRenderer meshrenderer = newRuban.AddComponent<MeshRenderer>();
+        MeshFilter meshFilter = newRuban.AddComponent<MeshFilter>();
+        meshrenderer.material = GetComponent<MeshRenderer>().material;
+        meshrenderer.material.SetInt("_Cull", (int)UnityEngine.Rendering.CullMode.Off);
+
+        Mesh newMesh = new Mesh();
+        Vector3[] localVerts = new Vector3[worldVertices.Count];
+        // Convertir les vertices monde en coordonnées locales du nouveau ruban
+        for (int i = 0; i < worldVertices.Count; i++)
+            localVerts[i] = newRuban.transform.InverseTransformPoint(worldVertices[i]);
+
+        int[] tris = new int[(localVerts.Length - 2) * 3];
+        for (int i = 0; i < (localVerts.Length / 2) - 1; i++)
+        {
+            int vi = i * 2;
+            int ti = i * 6;
+            tris[ti + 0] = vi;
+            tris[ti + 1] = vi + 1;
+            tris[ti + 2] = vi + 2;
+            tris[ti + 3] = vi + 3;
+            tris[ti + 4] = vi + 2;
+            tris[ti + 5] = vi + 1;
+        }
+
+        newMesh.vertices = localVerts;
+        newMesh.triangles = tris;
+        newMesh.RecalculateNormals();
+        meshFilter.mesh = newMesh;
+
+        AjouterCollider(newRuban);
+    }*/
+
     void CreateRubanFromWorldVertices(List<Vector3> worldVertices)
     {
         if (worldVertices.Count < 4) return;
@@ -960,6 +1097,39 @@ public class MeshTimer : MonoBehaviour
         meshFilter.mesh = newMesh;
 
         AjouterCollider(newRuban);
+
+        // grab le ruban au runtime
+        Rigidbody rb = newRuban.GetComponent<Rigidbody>();
+        if (rb == null)
+        {
+            rb = newRuban.AddComponent<Rigidbody>();
+        }
+        rb.useGravity = false;
+        rb.isKinematic = true;
+
+        // Ensure we have a collider (CreatePrimitive gives one already)
+        MeshCollider col = newRuban.GetComponent<MeshCollider>();
+        if (col == null)
+        {
+            col = newRuban.AddComponent<MeshCollider>();
+            col.convex = true;
+        }
+
+        var grabbable = newRuban.AddComponent<Grabbable>();
+        grabbable.InjectOptionalRigidbody(rb);
+
+        // 2. GrabInteractable (for controllers)
+        var grabInteractable = newRuban.AddComponent<GrabInteractable>();
+        // assign required fields (check in your SDK inspector to confirm)
+        grabInteractable.InjectRigidbody(rb);
+        grabInteractable.InjectOptionalPointableElement(grabbable);
+
+        // 3. HandGrabInteractable (for hand tracking)
+        var handGrabInteractable = newRuban.AddComponent<HandGrabInteractable>();
+        handGrabInteractable.InjectRigidbody(rb);
+        handGrabInteractable.InjectOptionalPointableElement(grabbable);
+
+        Debug.Log("Runtime grabbable newRuban created and configured.");
     }
 
     public void AjouterCollider(GameObject ruban)
