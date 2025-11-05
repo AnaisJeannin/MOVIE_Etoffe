@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -13,10 +14,18 @@ using UnityEngine.XR.Interaction.Toolkit;
 public class HandRubanSelector : MonoBehaviour
 {
     public MeshTimer manager;
+    public Patron managerPatron;
+
+    void Start()
+    {
+        if (managerPatron == null)
+            managerPatron = FindFirstObjectByType<Patron>();
+    }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (!manager.rubans.Contains(other.gameObject)) return;
+        if (!manager.rubans.Contains(other.gameObject) && !managerPatron.patrons.Contains(other.gameObject)) return;
+        // if (!manager.rubans.Contains(other.gameObject)) return ;
 
         if (manager.coutureActive)
         {
@@ -81,6 +90,12 @@ public class HandRubanSelector : MonoBehaviour
             foreach (var ruban in manager.rubans)
             {
                 Renderer rend = ruban.GetComponent<Renderer>();
+                if (rend) rend.material.color = Color.white;
+            }
+
+            foreach (var patron in managerPatron.patrons)
+            {
+                Renderer rend = patron.GetComponent<Renderer>();
                 if (rend) rend.material.color = Color.white;
             }
 
