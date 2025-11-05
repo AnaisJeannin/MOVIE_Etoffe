@@ -1,22 +1,28 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
+using Object = UnityEngine.Object;
+using Oculus.Interaction;
+using Oculus.Interaction.HandGrab;
+using System.Linq;
+using UnityEditor;
+using UnityEngine.UI;
+using TMPro;
+using UnityEngine.XR.Interaction.Toolkit;
 
 public class Patron : MonoBehaviour
 {
-    private DemoV5 manager;
+    private MeshTimer manager;
 
     //Camera
     public Camera mainCamera;
-    public float spawnDistance = 10f;
-    public float scrollSpeed = 5f;
 
     Mesh mesh;
     List<Vector3> Vertices = new List<Vector3>();
     Vector3[] VerticesTab;
     int[] Triangles;
-    List<Vector3> mousePosition = new List<Vector3>();
+    // List<Vector3> mousePosition = new List<Vector3>();
 
     GameObject patronEnCours;
     public List<GameObject> patrons = new List<GameObject>();
@@ -26,6 +32,8 @@ public class Patron : MonoBehaviour
     public GameObject vertexPrefab;
     public List<GameObject> vertexObjects = new List<GameObject>();
 
+    public GameObject newPatron;
+
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -34,26 +42,25 @@ public class Patron : MonoBehaviour
             mainCamera = Camera.main;
 
         if (manager == null)
-            manager = FindFirstObjectByType<DemoV5>();
+            manager = FindFirstObjectByType<MeshTimer>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        // Contrôle de profondeur
-        spawnDistance += Input.mouseScrollDelta.y * scrollSpeed;
-        spawnDistance = Mathf.Clamp(spawnDistance, 1f, 100f);
 
-        // Création d'un patron (clic P)
-        if (Input.GetKeyDown(KeyCode.P) && PatronCreation == null && manager.patron_clicked)
+        // CrÃ©ation d'un patron 
+        if (manager.IsPinching && !manager.isDrawing && PatronCreation == null && manager.patron_clicked)
         {
+            manager.isDrawing = true;
             NewMesh();
             PatronCreation = StartCoroutine(NewVertexes());
         }
 
-        // Stopper la création (clic S)
-        if (Input.GetKeyDown(KeyCode.S) && PatronCreation != null)
+        // Stopper la crÃ©ation
+        if (manager.isDrawing && !manager.IsPinching && PatronCreation != null && !manager.modeCloth && !manager.modeModify && !manager.coutureActive)
         {
+            manager.isDrawing = false;
             StopCoroutine(PatronCreation);
             CreateShape();
             UpdateMesh();
@@ -73,13 +80,46 @@ public class Patron : MonoBehaviour
                     manager.AjouterCollider(patronEnCours);
                     patronEnCours = null;
                 }
+
+                Rigidbody rb = newPatron.GetComponent<Rigidbody>();
+                if (rb == null)
+                {
+                    rb = newPatron.AddComponent<Rigidbody>();
+                }
+                rb.useGravity = false;
+                rb.isKinematic = true;
+
+                // Ensure we have a collider (CreatePrimitive gives one already)
+                MeshCollider col = newPatron.GetComponent<MeshCollider>();
+                if (col == null)
+                {
+                    col = newPatron.AddComponent<MeshCollider>();
+                    col.convex = true;
+                }
+
+                var grabbable = newPatron.AddComponent<Grabbable>();
+                grabbable.InjectOptionalRigidbody(rb);
+
+                // 2. GrabInteractable (for controllers)
+                var grabInteractable = newPatron.AddComponent<GrabInteractable>();
+                // assign required fields (check in your SDK inspector to confirm)
+                grabInteractable.InjectRigidbody(rb);
+                grabInteractable.InjectOptionalPointableElement(grabbable);
+
+                // 3. HandGrabInteractable (for hand tracking)
+                var handGrabInteractable = newPatron.AddComponent<HandGrabInteractable>();
+                handGrabInteractable.InjectRigidbody(rb);
+                handGrabInteractable.InjectOptionalPointableElement(grabbable);
+
+                Debug.Log("Runtime grabbable newPatron created and configured.");
             }
+
         }
     }
 
     void NewMesh()
     {
-        GameObject newPatron = new GameObject("Patron");
+        newPatron = new GameObject("Patron");
         patronEnCours = newPatron;
         newPatron.transform.SetParent(this.transform);
         patrons.Add(newPatron);
@@ -93,8 +133,8 @@ public class Patron : MonoBehaviour
         meshrenderer.sharedMaterial = GetComponent<MeshRenderer>().sharedMaterial;
         meshrenderer.material.SetInt("_Cull", (int)UnityEngine.Rendering.CullMode.Off);
 
-        Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
-        Vector3 position = ray.origin + ray.direction * spawnDistance;
+        // Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
+        Vector3 position = manager.GetIndexTipPosition();
 
         Vertices.Add(position);
         ShowVertices(position);
@@ -108,8 +148,8 @@ public class Patron : MonoBehaviour
     {
         while (true)
         {
-            Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
-            Vector3 pos = ray.origin + ray.direction * spawnDistance;
+            // Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
+            Vector3 pos = manager.GetIndexTipPosition();
 
             if (Vector3.Distance(Vertices[Vertices.Count - 1], pos) > 0.01f)
             {
@@ -125,19 +165,19 @@ public class Patron : MonoBehaviour
         Vertices.Add(Barycentre(Vertices));
         VerticesTab = Vertices.ToArray();
 
-        Triangles = new int[(VerticesTab.Length-1) * 3];
+        Triangles = new int[(VerticesTab.Length - 1) * 3];
 
-        for (int i = 0; i < VerticesTab.Length -2 ; i += 1)
+        for (int i = 0; i < VerticesTab.Length - 2; i += 1)
         {
             int tri = i * 3;
-            Triangles[tri + 0] = i + 1 ;
-            Triangles[tri + 1] = i ;
-            Triangles[tri + 2] = VerticesTab.Length -1 ;
+            Triangles[tri + 0] = i + 1;
+            Triangles[tri + 1] = i;
+            Triangles[tri + 2] = VerticesTab.Length - 1;
         }
 
-        Triangles[(VerticesTab.Length -2) * 3 + 0] = VerticesTab.Length -2;
-        Triangles[(VerticesTab.Length -2) * 3 + 1] = 0;
-        Triangles[(VerticesTab.Length -2) * 3 + 2] = VerticesTab.Length -1;
+        Triangles[(VerticesTab.Length - 2) * 3 + 0] = VerticesTab.Length - 2;
+        Triangles[(VerticesTab.Length - 2) * 3 + 1] = 0;
+        Triangles[(VerticesTab.Length - 2) * 3 + 2] = VerticesTab.Length - 1;
     }
 
     void UpdateMesh()
@@ -160,7 +200,7 @@ public class Patron : MonoBehaviour
     // Barycentre
     Vector3 Barycentre(List<Vector3> vertices)
     {
-        // Calcul pour chaque coordonnées
+        // Calcul pour chaque coordonnÃ©es
         float sumX = 0f;
         float sumY = 0f;
         float sumZ = 0f;
