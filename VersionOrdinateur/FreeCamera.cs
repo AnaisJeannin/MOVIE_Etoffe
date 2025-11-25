@@ -2,12 +2,12 @@ using UnityEngine;
 
 public class FreeCamera : MonoBehaviour
 {
-    [Header("Vitesse de déplacement")]
+    [Header("Vitesse de dÃ©placement")]
     public float moveSpeed = 10f;      // vitesse normale
     public float sprintMultiplier = 2f; // vitesse quand on appuie sur Shift
 
     [Header("Vitesse de rotation")]
-    public float lookSpeed = 2f;       // sensibilité de la souris
+    public float lookSpeed = 2f;       // sensibilitÃ© de la souris
 
     private float yaw = 0f;            // rotation horizontale
     private float pitch = 0f;          // rotation verticale
@@ -16,8 +16,8 @@ public class FreeCamera : MonoBehaviour
     {
         // --------- Rotation avec la souris ---------
         yaw += lookSpeed * Input.GetAxis("Mouse X");  // mouvement horizontal
-        pitch -= lookSpeed * Input.GetAxis("Mouse Y"); // mouvement vertical inversé
-        pitch = Mathf.Clamp(pitch, -90f, 90f);       // éviter que la caméra fasse un flip complet
+        pitch -= lookSpeed * Input.GetAxis("Mouse Y"); // mouvement vertical inversÃ©
+        pitch = Mathf.Clamp(pitch, -90f, 90f);       // Ã©viter que la camÃ©ra fasse un flip complet
         transform.eulerAngles = new Vector3(pitch, yaw, 0f);
 
         // --------- Mouvement avec les touches ---------
