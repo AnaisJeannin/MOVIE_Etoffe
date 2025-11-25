@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class Patron : MonoBehaviour
 {
-    private DemoV5 manager;
+    private Main manager;
 
     //Camera
     public Camera mainCamera;
