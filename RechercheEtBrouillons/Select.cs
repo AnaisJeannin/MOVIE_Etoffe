@@ -36,18 +36,18 @@ public class Select : MonoBehaviour
 
     void Update()
     {
-        // Contrôle de profondeur
+        // ContrÃ´le de profondeur
         spawnDistance += Input.mouseScrollDelta.y * scrollSpeed;
         spawnDistance = Mathf.Clamp(spawnDistance, 1f, 100f);
 
-        // Création d’un ruban (clic gauche)
+        // CrÃ©ation dâ€™un ruban (clic gauche)
         if (Input.GetKeyDown(KeyCode.C) && MeshCreation == null && !modeCloth)
         {
             NewMesh();
             MeshCreation = StartCoroutine(NewVertexes());
         }
 
-        // Stopper la création (clic droit)
+        // Stopper la crÃ©ation (clic droit)
         if (Input.GetMouseButtonDown(1) && MeshCreation != null)
         {
             StopCoroutine(MeshCreation);
@@ -73,7 +73,7 @@ public class Select : MonoBehaviour
             MeshCreation = null;
         }
 
-        // Sélection d’un ruban (clic gauche sur un ruban existant)
+        // SÃ©lection dâ€™un ruban (clic gauche sur un ruban existant)
         if (Input.GetMouseButtonUp(0))
         {
             if (rubanSelectionne != null)
@@ -89,9 +89,9 @@ public class Select : MonoBehaviour
                 if (rubans.Contains(hit.collider.gameObject))
                 {
                     rubanSelectionne = hit.collider.gameObject;
-                    Debug.Log("Ruban sélectionné : " + rubanSelectionne.name);
+                    Debug.Log("Ruban sÃ©lectionnÃ© : " + rubanSelectionne.name);
 
-                    // Change la couleur du matériau pour montrer la sélection
+                    // Change la couleur du matÃ©riau pour montrer la sÃ©lection
                     Renderer rend = rubanSelectionne.GetComponent<Renderer>();
                     if (rend) rend.material.color = Color.yellow;
                 }
@@ -231,7 +231,7 @@ public class Select : MonoBehaviour
             cloth.stretchingStiffness = 0.6f;
             cloth.bendingStiffness = 0.6f;
             modeCloth = true;
-            Debug.Log("Cloth activé !");
+            Debug.Log("Cloth activÃ© !");
         }
         else
         {
@@ -247,7 +247,7 @@ public class Select : MonoBehaviour
             var newRenderer = ruban.AddComponent<MeshRenderer>();
             newRenderer.material = mat;
             modeCloth = false;
-            Debug.Log("Cloth désactivé !");
+            Debug.Log("Cloth dÃ©sactivÃ© !");
         }
     }
     void AjouterCollider(GameObject ruban)
@@ -263,7 +263,7 @@ public class Select : MonoBehaviour
         collider.enabled = false;
         collider.enabled = true;
 
-        Debug.Log($"MeshCollider ajouté à {ruban.name}");
+        Debug.Log($"MeshCollider ajoutÃ© Ã  {ruban.name}");
     }
 
     IEnumerator MoveMesh(GameObject ruban)
@@ -273,7 +273,7 @@ public class Select : MonoBehaviour
             Vector3 targetPosition = GetMousePosition();
             Vector3 direction = (targetPosition - ruban.transform.position);
 
-            // Pour savoir quand s'arrêter
+            // Pour savoir quand s'arrÃªter
             if (direction.magnitude > 0.01f)
             {
                 ruban.transform.position = Vector3.MoveTowards(ruban.transform.position, targetPosition, followSpeed * Time.deltaTime);
