@@ -10,8 +10,8 @@ public class MeshTimer : MonoBehaviour
     Mesh mesh;
 
     public event Action<Mesh> MeshCreated;
-    public Camera mainCamera;          // la caméra utilisée
-    public float spawnDistance = 10f;  // distance initiale devant la caméra
+    public Camera mainCamera;          // la camÃ©ra utilisÃ©e
+    public float spawnDistance = 10f;  // distance initiale devant la camÃ©ra
     public float scrollSpeed = 5f;     // vitesse de changement de profondeur
 
     Vector3[] verticesAct;
@@ -36,7 +36,7 @@ public class MeshTimer : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        // Si la caméra n'est pas assignée, on prend la principale
+        // Si la camÃ©ra n'est pas assignÃ©e, on prend la principale
         if (mainCamera == null)
             mainCamera = Camera.main;
     }
@@ -98,7 +98,7 @@ public class MeshTimer : MonoBehaviour
 
     void NewMesh()
     {
-        //Création nouvel objet
+        //CrÃ©ation nouvel objet
         GameObject newRuban = new GameObject();
         newRuban.transform.SetParent(this.transform);
         newRuban.name = "Ruban";
@@ -113,7 +113,7 @@ public class MeshTimer : MonoBehaviour
         Mesh newMesh = new Mesh();
         meshFilter.mesh = newMesh;
 
-        //On initialise le rectangle de départ du ruban
+        //On initialise le rectangle de dÃ©part du ruban
         Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
         Vector3 position = ray.origin + ray.direction * spawnDistance;
 
@@ -123,12 +123,12 @@ public class MeshTimer : MonoBehaviour
         verticesPre[2] = position;
         verticesPre[3] = new Vector3(position.x, position.y + 1, position.z);
 
-        //Réinialisation des compteurs et de la liste mousePosition
+        //RÃ©inialisation des compteurs et de la liste mousePosition
         verticesCount = 4;
         trianglesCount = 2;
         mousePosition.Clear();
 
-        //Création mesh
+        //CrÃ©ation mesh
         mesh = newMesh;
         CreateShape();
         UpdateMesh();
@@ -156,7 +156,7 @@ public class MeshTimer : MonoBehaviour
             Vector3 targetPosition = GetMousePosition();
             Vector3 direction = (targetPosition - ruban.transform.position);
 
-            // Pour savoir quand s'arrêter
+            // Pour savoir quand s'arrÃªter
             if (direction.magnitude > 0.1f)
             {
                 ruban.transform.position = Vector3.MoveTowards(ruban.transform.position, targetPosition, followSpeed*Time.deltaTime);
@@ -200,16 +200,16 @@ public class MeshTimer : MonoBehaviour
             Vector3 worldVertexPos = transform.TransformPoint(smr.sharedMesh.vertices[0]);
 
             coefficients[0].maxDistance = 0f; // Fixer le premier point
-            cloth.coefficients = coefficients; // Réassigner le tableau modifié
+            cloth.coefficients = coefficients; // RÃ©assigner le tableau modifiÃ©
 
-            Debug.Log("Cloth activé !");
+            Debug.Log("Cloth activÃ© !");
             ModeCloth = true;
 
         }
 
         else
         {
-            // Sauvegarder mesh et material avant de tout détruire
+            // Sauvegarder mesh et material avant de tout dÃ©truire
             Mesh mesh = smr.sharedMesh;
             Material mat = smr.material;
 
@@ -217,14 +217,14 @@ public class MeshTimer : MonoBehaviour
             Destroy(cloth);
             Destroy(smr);
 
-            // Recréer MeshFilter et MeshRenderer
+            // RecrÃ©er MeshFilter et MeshRenderer
             MeshFilter newFilter = ruban.AddComponent<MeshFilter>();
             newFilter.mesh = mesh;
 
             MeshRenderer newRenderer = ruban.AddComponent<MeshRenderer>();
             newRenderer.material = mat;
 
-            Debug.Log("Cloth désactivé !");
+            Debug.Log("Cloth dÃ©sactivÃ© !");
             ModeCloth = false;
         }
     }
@@ -240,9 +240,9 @@ public class MeshTimer : MonoBehaviour
 // Update is called once per frame
 void Update()
     {
-        // Contrôle de la profondeur avec la molette
+        // ContrÃ´le de la profondeur avec la molette
         spawnDistance += Input.mouseScrollDelta.y * scrollSpeed;
-        spawnDistance = Mathf.Clamp(spawnDistance, 1f, 100f); // borne entre 1 et 100 unités
+        spawnDistance = Mathf.Clamp(spawnDistance, 1f, 100f); // borne entre 1 et 100 unitÃ©s
 
         // Clic gauche -> lancement de coroutine
         if (Input.GetMouseButtonUp(0))
@@ -255,7 +255,7 @@ void Update()
             }
         }
 
-        // Clic droit -> arrêt du timer
+        // Clic droit -> arrÃªt du timer
         if (Input.GetMouseButtonDown(1) && MeshCreation != null)
         {
             StopCoroutine(MeshCreation);
