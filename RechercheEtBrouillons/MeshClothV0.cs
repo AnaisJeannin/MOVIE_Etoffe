@@ -114,7 +114,7 @@ public class MeshClothV0 : MonoBehaviour
         else
         {
             Destroy(cloth);
-            Debug.Log("Cloth supprimé !");
+            Debug.Log("Cloth supprimÃ© !");
         }
     }
 }
