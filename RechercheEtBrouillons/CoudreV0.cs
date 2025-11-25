@@ -38,18 +38,18 @@ public class Select : MonoBehaviour
 
     void Update()
     {
-        // Contrôle de profondeur
+        // ContrÃ´le de profondeur
         spawnDistance += Input.mouseScrollDelta.y * scrollSpeed;
         spawnDistance = Mathf.Clamp(spawnDistance, 1f, 100f);
 
-        // Création d’un ruban (clic gauche)
+        // CrÃ©ation dâ€™un ruban (clic gauche)
         if (Input.GetKeyDown(KeyCode.C) && MeshCreation == null && !modeCloth)
         {
             NewMesh();
             MeshCreation = StartCoroutine(NewVertexes());
         }
 
-        // Stopper la création (clic droit)
+        // Stopper la crÃ©ation (clic droit)
         if (Input.GetMouseButtonDown(1) && MeshCreation != null)
         {
             StopCoroutine(MeshCreation);
@@ -75,7 +75,7 @@ public class Select : MonoBehaviour
             MeshCreation = null;
         }
 
-        // Sélection d’un ruban (clic gauche sur un ruban existant)
+        // SÃ©lection dâ€™un ruban (clic gauche sur un ruban existant)
         if (Input.GetMouseButtonUp(0))
         {
             if (rubanSelectionne != null)
@@ -91,9 +91,9 @@ public class Select : MonoBehaviour
                 if (rubans.Contains(hit.collider.gameObject))
                 {
                     rubanSelectionne = hit.collider.gameObject;
-                    Debug.Log("Ruban sélectionné : " + rubanSelectionne.name);
+                    Debug.Log("Ruban sÃ©lectionnÃ© : " + rubanSelectionne.name);
 
-                    // Change la couleur du matériau pour montrer la sélection
+                    // Change la couleur du matÃ©riau pour montrer la sÃ©lection
                     Renderer rend = rubanSelectionne.GetComponent<Renderer>();
                     if (rend) rend.material.color = Color.yellow;
                 }
@@ -118,18 +118,18 @@ public class Select : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.P))
         {
             coutureActive = !coutureActive;
-            Debug.Log("Couture " + (coutureActive ? "activée" : "désactivée"));
+            Debug.Log("Couture " + (coutureActive ? "activÃ©e" : "dÃ©sactivÃ©e"));
         }
 
         if (coutureActive)
         {
-            // Appelle ta fonction CloseRuban() pour détecter et colorer les rubans proches
+            // Appelle ta fonction CloseRuban() pour dÃ©tecter et colorer les rubans proches
             CloseRuban();
 
             // Si tu appuies sur I, couds les rubans proches
             if (Input.GetKeyDown(KeyCode.I))
             {
-                // On va chercher la première paire proche pour coudre
+                // On va chercher la premiÃ¨re paire proche pour coudre
                 for (int i = 0; i < rubans.Count; i++)
                 {
                     GameObject rubanA = rubans[i];
@@ -158,7 +158,7 @@ public class Select : MonoBehaviour
                         {
                             Debug.Log("Couture des rubans !");
                             Coudre(rubanA, rubanB);
-                            return; // Coud une paire et sort pour éviter bugs
+                            return; // Coud une paire et sort pour Ã©viter bugs
                         }
                     }
                 }
@@ -167,7 +167,7 @@ public class Select : MonoBehaviour
 
         else
         {
-            // Couture désactivée, on remet toutes les couleurs normales
+            // Couture dÃ©sactivÃ©e, on remet toutes les couleurs normales
             foreach (var ruban in rubans)
             {
                 Renderer rend = ruban.GetComponent<Renderer>();
@@ -294,7 +294,7 @@ public class Select : MonoBehaviour
             cloth.stretchingStiffness = 0.6f;
             cloth.bendingStiffness = 0.6f;
             modeCloth = true;
-            Debug.Log("Cloth activé !");
+            Debug.Log("Cloth activÃ© !");
         }
         else
         {
@@ -310,7 +310,7 @@ public class Select : MonoBehaviour
             var newRenderer = ruban.AddComponent<MeshRenderer>();
             newRenderer.material = mat;
             modeCloth = false;
-            Debug.Log("Cloth désactivé !");
+            Debug.Log("Cloth dÃ©sactivÃ© !");
         }
     }
     void AjouterCollider(GameObject ruban)
@@ -326,7 +326,7 @@ public class Select : MonoBehaviour
         collider.enabled = false;
         collider.enabled = true;
 
-        Debug.Log($"MeshCollider ajouté à {ruban.name}");
+        Debug.Log($"MeshCollider ajoutÃ© Ã  {ruban.name}");
     }
 
     IEnumerator MoveMesh(GameObject ruban)
@@ -336,7 +336,7 @@ public class Select : MonoBehaviour
             Vector3 targetPosition = GetMousePosition();
             Vector3 direction = (targetPosition - ruban.transform.position);
 
-            // Pour savoir quand s'arrêter
+            // Pour savoir quand s'arrÃªter
             if (direction.magnitude > 0.01f)
             {
                 ruban.transform.position = Vector3.MoveTowards(ruban.transform.position, targetPosition, followSpeed * Time.deltaTime);
@@ -353,7 +353,7 @@ public class Select : MonoBehaviour
 
     void Coudre(GameObject firstRuban, GameObject secondRuban)
     {
-        // Récupérer mesh et transform
+        // RÃ©cupÃ©rer mesh et transform
         Mesh firstMesh = firstRuban.GetComponent<MeshFilter>().mesh;
         Mesh secondMesh = secondRuban.GetComponent<MeshFilter>().mesh;
 
@@ -367,7 +367,7 @@ public class Select : MonoBehaviour
         Vector3[] firstWorld = firstVertices.Select(v => firstTransform.TransformPoint(v)).ToArray();
         Vector3[] secondWorld = secondVertices.Select(v => secondTransform.TransformPoint(v)).ToArray();
 
-        // Aligner les rubans : on déplace le second pour coller à la fin du premier
+        // Aligner les rubans : on dÃ©place le second pour coller Ã  la fin du premier
         Vector3 endOfFirst = firstWorld[firstWorld.Length - 2]; // avant-dernier point
         Vector3 startOfSecond = secondWorld[0];
         Vector3 offset = endOfFirst - startOfSecond;
@@ -380,12 +380,12 @@ public class Select : MonoBehaviour
         mergedWorld.AddRange(firstWorld);
         mergedWorld.AddRange(secondWorld);
 
-        // Choisir un point d’origine pour le nouveau ruban (ex: premier point)
+        // Choisir un point dâ€™origine pour le nouveau ruban (ex: premier point)
         Vector3 origin = mergedWorld[0];
         Vector3[] localVertices = mergedWorld.Select(v => v - origin).ToArray();
         List<Vector3> localVerticesList = new List<Vector3>(localVertices);
 
-        // Créer un nouveau ruban avec ta méthode actuelle
+        // CrÃ©er un nouveau ruban avec ta mÃ©thode actuelle
         CreateRubanFromVerticesAndPosition(localVerticesList, origin);
 
         // Supprimer les anciens rubans
@@ -470,7 +470,7 @@ public class Select : MonoBehaviour
 
                     Debug.Log($"Distance entre {rubanA.name} et {rubanB.name} : {distance}");
 
-                    if (distance < 1.0f) // Seuil de proximité
+                    if (distance < 1.0f) // Seuil de proximitÃ©
                     {
                         Debug.Log($"Rubans proches");
                         rendA.material.color = Color.red;
@@ -481,7 +481,7 @@ public class Select : MonoBehaviour
                         {
                             Debug.Log("Couture des rubans !");
                             Coudre(rubanA, rubanB);
-                            return; // Sortir de la fonction après la couture
+                            return; // Sortir de la fonction aprÃ¨s la couture
                         }
 
                         // Si on ne veut pas les coudre
@@ -505,7 +505,7 @@ public class Select : MonoBehaviour
 
 // voir si 2 bouts de rubans proches 
 // les fusionner en un seul ruban
-// - créer une nouvelle mesh avec les vertex des 2 rubans
+// - crÃ©er une nouvelle mesh avec les vertex des 2 rubans
 // - supprimer les 2 anciens rubans
 
 // constamment regarder si deux rubans sont proches
