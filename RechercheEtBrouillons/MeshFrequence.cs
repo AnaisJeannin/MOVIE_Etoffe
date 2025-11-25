@@ -17,7 +17,7 @@ public class MeshGenerator : MonoBehaviour
     int timerMax = 1000; // 1 seconde
 
     //public object MeshCreated { get; private set; }
-    public event Action<Mesh> MeshCreated; // Remplacez la propriété existante
+    public event Action<Mesh> MeshCreated; // Remplacez la propriÃ©tÃ© existante
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -94,7 +94,7 @@ public class MeshGenerator : MonoBehaviour
             trianglesCount += 2;
             CreateShape();
             UpdateMesh();
-            MeshCreated?.Invoke(mesh); // MeshCreated est maintenant un événement
+            MeshCreated?.Invoke(mesh); // MeshCreated est maintenant un Ã©vÃ©nement
 
         }
     }
