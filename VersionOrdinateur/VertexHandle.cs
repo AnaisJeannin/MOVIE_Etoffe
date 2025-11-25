@@ -5,7 +5,7 @@ using static UnityEditor.Searcher.SearcherWindow.Alignment;
 
 public class VertexHandle : MonoBehaviour
 {
-    private DemoV5 manager;
+    private Main manager;
     private GameObject ruban;
     private int vertexIndex;
     private Camera cam;
