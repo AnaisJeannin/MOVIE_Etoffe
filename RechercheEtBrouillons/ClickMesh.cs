@@ -4,14 +4,14 @@ using UnityEngine;
 
 public class ClickMesh : MonoBehaviour
 {
-    //public GameObject pointPrefab;     // ton prefab de sphËre -> ‡ transfomer en sommet
+    //public GameObject pointPrefab;     // ton prefab de sph√®re -> √† transfomer en sommet
     
 
     Mesh mesh;
 
     public event Action<Mesh> MeshCreated;
-    public Camera mainCamera;          // la camÈra utilisÈe
-    public float spawnDistance = 10f;  // distance initiale devant la camÈra
+    public Camera mainCamera;          // la cam√©ra utilis√©e
+    public float spawnDistance = 10f;  // distance initiale devant la cam√©ra
     public float scrollSpeed = 5f;     // vitesse de changement de profondeur
 
     Vector3[] verticesAct;
@@ -27,7 +27,7 @@ public class ClickMesh : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        // Si la camÈra n'est pas assignÈe, on prend la principale
+        // Si la cam√©ra n'est pas assign√©e, on prend la principale
         if (mainCamera == null)
             mainCamera = Camera.main;
 
@@ -103,11 +103,11 @@ public class ClickMesh : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // ContrÙle de la profondeur avec la molette
+        // Contr√¥le de la profondeur avec la molette
         spawnDistance += Input.mouseScrollDelta.y * scrollSpeed;
-        spawnDistance = Mathf.Clamp(spawnDistance, 1f, 100f); // borne entre 1 et 100 unitÈs
+        spawnDistance = Mathf.Clamp(spawnDistance, 1f, 100f); // borne entre 1 et 100 unit√©s
 
-        // Clic gauche -> crÈation du sommet
+        // Clic gauche -> cr√©ation du sommet
         if (Input.GetMouseButtonDown(0))
         {
             Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
