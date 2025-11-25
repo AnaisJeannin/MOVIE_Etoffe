@@ -10,8 +10,8 @@ public class MeshTimer : MonoBehaviour
     Mesh mesh;
 
     public event Action<Mesh> MeshCreated;
-    public Camera mainCamera;          // la caméra utilisée
-    public float spawnDistance = 10f;  // distance initiale devant la caméra
+    public Camera mainCamera;          // la camÃ©ra utilisÃ©e
+    public float spawnDistance = 10f;  // distance initiale devant la camÃ©ra
     public float scrollSpeed = 5f;     // vitesse de changement de profondeur
 
     Vector3[] verticesAct;
@@ -39,7 +39,7 @@ public class MeshTimer : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        // Si la caméra n'est pas assignée, on prend la principale
+        // Si la camÃ©ra n'est pas assignÃ©e, on prend la principale
         if (mainCamera == null)
             mainCamera = Camera.main;
     }
@@ -101,7 +101,7 @@ public class MeshTimer : MonoBehaviour
 
     void NewMesh()
     {
-        //Création nouvel objet
+        //CrÃ©ation nouvel objet
         GameObject newRuban = new GameObject("Ruban");
         rubanEnCours = newRuban;
         newRuban.transform.SetParent(this.transform);
@@ -116,7 +116,7 @@ public class MeshTimer : MonoBehaviour
         Mesh newMesh = new Mesh();
         meshFilter.mesh = newMesh;
 
-        //On initialise le rectangle de départ du ruban
+        //On initialise le rectangle de dÃ©part du ruban
         Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
         Vector3 position = ray.origin + ray.direction * spawnDistance;
 
@@ -126,12 +126,12 @@ public class MeshTimer : MonoBehaviour
         verticesPre[2] = position;
         verticesPre[3] = new Vector3(position.x, position.y + 1, position.z);
 
-        //Réinialisation des compteurs et de la liste mousePosition
+        //RÃ©inialisation des compteurs et de la liste mousePosition
         verticesCount = 4;
         trianglesCount = 2;
         mousePosition.Clear();
 
-        //Création mesh
+        //CrÃ©ation mesh
         mesh = newMesh;
         CreateShape();
         UpdateMesh();
@@ -159,7 +159,7 @@ public class MeshTimer : MonoBehaviour
             Vector3 targetPosition = GetMousePosition();
             Vector3 direction = (targetPosition - ruban.transform.position);
 
-            // Pour savoir quand s'arrêter
+            // Pour savoir quand s'arrÃªter
             if (direction.magnitude > 0.1f)
             {
                 ruban.transform.position = Vector3.MoveTowards(ruban.transform.position, targetPosition, followSpeed*Time.deltaTime);
@@ -205,16 +205,16 @@ public class MeshTimer : MonoBehaviour
             Vector3 worldVertexPos = transform.TransformPoint(smr.sharedMesh.vertices[0]);
 
             coefficients[0].maxDistance = 0f; // Fixer le premier point
-            cloth.coefficients = coefficients; // Réassigner le tableau modifié
+            cloth.coefficients = coefficients; // RÃ©assigner le tableau modifiÃ©
 
-            Debug.Log("Cloth activé !");
+            Debug.Log("Cloth activÃ© !");
             ModeCloth = true;
 
         }
 
         else
         {
-            // Sauvegarder mesh et material avant de tout détruire
+            // Sauvegarder mesh et material avant de tout dÃ©truire
             Mesh mesh = smr.sharedMesh;
             Material mat = smr.material;
 
@@ -222,7 +222,7 @@ public class MeshTimer : MonoBehaviour
             Destroy(cloth);
             Destroy(smr);
 
-            // Recréer MeshFilter, MeshRenderer et MeshCollider
+            // RecrÃ©er MeshFilter, MeshRenderer et MeshCollider
             MeshFilter newFilter = ruban.AddComponent<MeshFilter>();
             newFilter.mesh = mesh;
 
@@ -232,7 +232,7 @@ public class MeshTimer : MonoBehaviour
             MeshCollider newCollider = ruban.AddComponent<MeshCollider>();
             newCollider.sharedMesh = mesh;
 
-            Debug.Log("Cloth désactivé !");
+            Debug.Log("Cloth dÃ©sactivÃ© !");
             ModeCloth = false;
         }
     }
@@ -250,13 +250,13 @@ public class MeshTimer : MonoBehaviour
 
         if (closestIndex == -1 || hitMesh == null || hitRuban == null)
         {
-            Debug.Log("Pas de vertex proche détecté !");
+            Debug.Log("Pas de vertex proche dÃ©tectÃ© !");
             return;
         }
 
         Vector3[] vertices = hitMesh.vertices;
 
-        // Vérifie que le curseur est proche du vertex
+        // VÃ©rifie que le curseur est proche du vertex
         Vector3 worldVertex = hitRuban.transform.TransformPoint(vertices[closestIndex]);
         float distanceToCursor = Vector3.Distance(worldVertex, GetMousePosition());
 
@@ -273,7 +273,7 @@ public class MeshTimer : MonoBehaviour
         int lowerIndex = (closestIndex % 2 == 0) ? closestIndex : closestIndex - 1;
         int upperIndex = lowerIndex + 1;
 
-        // Découpe en deux rubans
+        // DÃ©coupe en deux rubans
         List<Vector3> firstHalf = new List<Vector3>();
         List<Vector3> secondHalf = new List<Vector3>();
 
@@ -291,7 +291,7 @@ public class MeshTimer : MonoBehaviour
             }
         }
 
-        // Crée les 2 nouveaux rubans
+        // CrÃ©e les 2 nouveaux rubans
         CreateRubanFromVertices(firstHalf);
         CreateRubanFromVertices(secondHalf);
 
@@ -299,7 +299,7 @@ public class MeshTimer : MonoBehaviour
         Destroy(hitRuban);
     }
 
-    // Pour créer les rubans lors de la découpe
+    // Pour crÃ©er les rubans lors de la dÃ©coupe
     void CreateRubanFromVertices(List<Vector3> vertexList)
     {
         if (vertexList.Count < 4) return;
@@ -351,10 +351,10 @@ public class MeshTimer : MonoBehaviour
         collider.enabled = false;
         collider.enabled = true;
 
-        Debug.Log($"MeshCollider ajouté à {ruban.name}");
+        Debug.Log($"MeshCollider ajoutÃ© Ã  {ruban.name}");
     }
 
-    // Pour sélectionner le vertex le plus proche
+    // Pour sÃ©lectionner le vertex le plus proche
     public int ClosestIndexToPoint(Ray ray, out Mesh hitMesh, out GameObject hitObject)
     {
         RaycastHit hit;
@@ -366,18 +366,18 @@ public class MeshTimer : MonoBehaviour
             MeshFilter mf = hit.transform.GetComponent<MeshFilter>();
             if (mf == null)
             {
-                return -1; // Sécurité
+                return -1; // SÃ©curitÃ©
             }
 
             hitMesh = mf.sharedMesh;
             hitObject = hit.transform.gameObject;
             Transform hitTransform = hit.transform;
 
-            // Vérification de la validité du triangleIndex
+            // VÃ©rification de la validitÃ© du triangleIndex
             int triangleIndex = hit.triangleIndex;
             if (triangleIndex < 0)
             {
-                Debug.LogWarning("triangleIndex négatif, probablement aucun triangle détecté.");
+                Debug.LogWarning("triangleIndex nÃ©gatif, probablement aucun triangle dÃ©tectÃ©.");
                 hitMesh = null;
                 hitObject = null;
                 return -1;
@@ -400,21 +400,21 @@ public class MeshTimer : MonoBehaviour
                 return -1;
             }
 
-            // On récupère les indices de sommet pour ce triangle
+            // On rÃ©cupÃ¨re les indices de sommet pour ce triangle
             int i0 = triangleArray[triangleIndexBase + 0];
             int i1 = triangleArray[triangleIndexBase + 1];
             int i2 = triangleArray[triangleIndexBase + 2];
 
-            // Vérifie que les indices sont valides par rapport au tableau de sommets
+            // VÃ©rifie que les indices sont valides par rapport au tableau de sommets
             if (i0 >= vertexArrayLength || i1 >= vertexArrayLength || i2 >= vertexArrayLength)
             {
-                Debug.LogWarning("Un des indices de triangle dépasse la taille du tableau de vertices.");
+                Debug.LogWarning("Un des indices de triangle dÃ©passe la taille du tableau de vertices.");
                 hitMesh = null;
                 hitObject = null;
                 return -1;
             }
 
-            // OK, on peut accéder aux sommets
+            // OK, on peut accÃ©der aux sommets
             Vector3 worldV0 = hitTransform.TransformPoint(vertices[i0]);
             Vector3 worldV1 = hitTransform.TransformPoint(vertices[i1]);
             Vector3 worldV2 = hitTransform.TransformPoint(vertices[i2]);
@@ -444,7 +444,7 @@ public class MeshTimer : MonoBehaviour
     }
 
 
-    // Pour avoir accès à la position de la souris
+    // Pour avoir accÃ¨s Ã  la position de la souris
     Vector3 GetMousePosition()
     {
         Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
@@ -455,9 +455,9 @@ public class MeshTimer : MonoBehaviour
 // Update is called once per frame
 void Update()
     {
-        // Contrôle de la profondeur avec la molette
+        // ContrÃ´le de la profondeur avec la molette
         spawnDistance += Input.mouseScrollDelta.y * scrollSpeed;
-        spawnDistance = Mathf.Clamp(spawnDistance, 1f, 100f); // borne entre 1 et 100 unités
+        spawnDistance = Mathf.Clamp(spawnDistance, 1f, 100f); // borne entre 1 et 100 unitÃ©s
 
         // Clic gauche -> lancement de coroutine NewVertexes
         if (Input.GetMouseButtonUp(0))
@@ -470,7 +470,7 @@ void Update()
             }
         }
 
-        // Clic droit -> arrêt du timer
+        // Clic droit -> arrÃªt du timer
         if (Input.GetMouseButtonDown(1) && MeshCreation != null)
         {
             StopCoroutine(MeshCreation);
@@ -521,8 +521,8 @@ void Update()
 // cliquer et prendre le vertex le plus proche 
 // une fois que la distance entre le curseur de la souris et le vertex du bas est assez petite : couper
 // pour couper :
-// - créer un ruban égal à la fin de celui que l'on coupe 
-// - créer un ruban égal au début du ruban que l'on coupe
+// - crÃ©er un ruban Ã©gal Ã  la fin de celui que l'on coupe 
+// - crÃ©er un ruban Ã©gal au dÃ©but du ruban que l'on coupe
 // - supprimer le ruban de base
 
 
