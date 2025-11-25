@@ -8,8 +8,8 @@ public class MeshTimer : MonoBehaviour
     Mesh mesh;
 
     public event Action<Mesh> MeshCreated;
-    public Camera mainCamera;          // la caméra utilisée
-    public float spawnDistance = 10f;  // distance initiale devant la caméra
+    public Camera mainCamera;          // la camÃ©ra utilisÃ©e
+    public float spawnDistance = 10f;  // distance initiale devant la camÃ©ra
     public float scrollSpeed = 5f;     // vitesse de changement de profondeur
 
     Vector3[] verticesAct;
@@ -25,7 +25,7 @@ public class MeshTimer : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        // Si la caméra n'est pas assignée, on prend la principale
+        // Si la camÃ©ra n'est pas assignÃ©e, on prend la principale
         if (mainCamera == null)
             mainCamera = Camera.main;
 
@@ -118,9 +118,9 @@ public class MeshTimer : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // Contrôle de la profondeur avec la molette
+        // ContrÃ´le de la profondeur avec la molette
         spawnDistance += Input.mouseScrollDelta.y * scrollSpeed;
-        spawnDistance = Mathf.Clamp(spawnDistance, 1f, 100f); // borne entre 1 et 100 unités
+        spawnDistance = Mathf.Clamp(spawnDistance, 1f, 100f); // borne entre 1 et 100 unitÃ©s
 
         // Clic gauche -> lancement du timer
         if (Input.GetMouseButtonUp(0))
@@ -129,7 +129,7 @@ public class MeshTimer : MonoBehaviour
                 MeshCreation = StartCoroutine(NewVertexes());
         }
 
-        // Clic droit -> arrêt du timer
+        // Clic droit -> arrÃªt du timer
         if (Input.GetMouseButtonDown(1) && MeshCreation != null)
         {
             StopCoroutine(MeshCreation);
