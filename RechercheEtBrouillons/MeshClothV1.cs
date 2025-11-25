@@ -10,8 +10,8 @@ public class MeshClothV0 : MonoBehaviour
     Mesh mesh;
 
     public event Action<Mesh> MeshCreated;
-    public Camera mainCamera;          // la caméra utilisée
-    public float spawnDistance = 10f;  // distance initiale devant la caméra
+    public Camera mainCamera;          // la camÃ©ra utilisÃ©e
+    public float spawnDistance = 10f;  // distance initiale devant la camÃ©ra
     public float scrollSpeed = 5f;     // vitesse de changement de profondeur
 
     Vector3[] verticesAct;
@@ -27,7 +27,7 @@ public class MeshClothV0 : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        // Si la caméra n'est pas assignée, on prend la principale
+        // Si la camÃ©ra n'est pas assignÃ©e, on prend la principale
         if (mainCamera == null)
             mainCamera = Camera.main;
 
@@ -120,9 +120,9 @@ public class MeshClothV0 : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // Contrôle de la profondeur avec la molette
+        // ContrÃ´le de la profondeur avec la molette
         spawnDistance += Input.mouseScrollDelta.y * scrollSpeed;
-        spawnDistance = Mathf.Clamp(spawnDistance, 1f, 100f); // borne entre 1 et 100 unités
+        spawnDistance = Mathf.Clamp(spawnDistance, 1f, 100f); // borne entre 1 et 100 unitÃ©s
 
         // Clic gauche -> lancement du timer
         if (Input.GetMouseButtonUp(0))
@@ -133,7 +133,7 @@ public class MeshClothV0 : MonoBehaviour
             }
         }
 
-        // Clic droit -> arrêt du timer
+        // Clic droit -> arrÃªt du timer
         if (Input.GetMouseButtonDown(1) && MeshCreation != null)
         {
             StopCoroutine(MeshCreation);
@@ -172,7 +172,7 @@ public class MeshClothV0 : MonoBehaviour
             cloth.stretchingStiffness = 0.6f;
             cloth.bendingStiffness = 0.6f;
 
-            Debug.Log("Cloth activé !");
+            Debug.Log("Cloth activÃ© !");
         }
 
         else
@@ -180,13 +180,13 @@ public class MeshClothV0 : MonoBehaviour
             // Supprimer le composant Cloth
             Destroy(cloth);
 
-            // Réactiver le MeshRenderer pour afficher le mesh
+            // RÃ©activer le MeshRenderer pour afficher le mesh
             if (renderer != null)
             {
                 renderer.enabled = true;
             }
 
-            Debug.Log("Cloth désactivé !");
+            Debug.Log("Cloth dÃ©sactivÃ© !");
         }
     }
 }
