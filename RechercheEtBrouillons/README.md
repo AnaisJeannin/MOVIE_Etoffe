@@ -77,7 +77,7 @@ clic c : couper le ruban (il faut être assez proche)
 clic C : commencer ruban \
 clic droit : finir ruban \
 clic gauche : sélectionner un ruban \
-clic espace : déplacer le ruban sélectionner \
+clic espace : déplacer le ruban sélectionné \
 clic molette : cloth <-> mesh \
 clic P : regarder si des rubans sont proches -> colorie en rouge si oui \
 clic I : coudre deux rubans proches \
@@ -87,7 +87,7 @@ clic O : décider de ne pas coudre (peut-être pas nécessaire)
 clic R : commencer ruban \
 clic droit : arrêter ruban \
 clic gauche : sélectionner un ruban \
-clic espace : déplacer le ruban sélectionner \
+clic espace : déplacer le ruban sélectionné \
 clic molette : cloth <-> mesh \
 clic P : mode couture activé \
 -> pour coudre (si 2 rubans sont rouges) : sélectionner celui de droite puis \
@@ -99,7 +99,7 @@ clic M : modifier un ruban
 clic R : commencer ruban \
 clic droit : arrêter ruban \
 clic gauche : sélectionner un ruban \
-clic espace : déplacer le ruban sélectionner \
+clic espace : déplacer le ruban sélectionné \
 clic molette : cloth <-> mesh \
 clic P : mode couture activé \
 -> sélectionner les 2 à coudre \
@@ -110,7 +110,7 @@ clic M : modifier un ruban
 clic R : commencer ruban \
 clic droit : arrêter ruban \
 clic gauche : sélectionner un ruban \
-clic espace : déplacer le ruban sélectionner \
+clic espace : déplacer le ruban sélectionné \
 clic molette : cloth <-> mesh \
 clic P : mode couture activé \
 -> sélectionner les 2 à coudre \
@@ -123,7 +123,7 @@ Il faut importer un package https://docs.unity3d.com/Packages/com.unity.render-p
 clic R : commencer ruban \
 clic droit : arrêter ruban \
 clic gauche : sélectionner un ruban \
-clic espace : déplacer le ruban sélectionner \
+clic espace : déplacer le ruban sélectionné \
 clic molette : cloth <-> mesh \
 clic P : mode couture activé \
 -> sélectionner les 2 à coudre \
@@ -159,7 +159,7 @@ Pour la fonction modifier, on a besoin d'un prefab de sphère (vertexHandlePrefa
 clic R : commencer ruban \
 clic droit : arrêter ruban \
 clic gauche : sélectionner un ruban \
-clic espace : déplacer le ruban sélectionner \
+clic espace : déplacer le ruban sélectionné \
 bouton Cloth: cloth <-> mesh \
 bouton Sew : mode couture activé \
 -> sélectionner les 2 à coudre \
@@ -170,7 +170,7 @@ bouton Modify : modifier un ruban
 clic R : commencer ruban \
 clic droit : arrêter ruban \
 clic gauche : sélectionner un ruban \
-clic espace : déplacer le ruban sélectionner \
+clic espace : déplacer le ruban sélectionné \
 bouton Cloth: cloth <-> mesh \
 bouton Sew : mode couture activé \
 -> sélectionner les 2 à coudre \
@@ -190,7 +190,7 @@ Il faut importer un package https://docs.unity3d.com/Packages/com.unity.render-p
 clic R : commencer ruban \
 clic droit : arrêter ruban \
 clic gauche : sélectionner un ruban \
-clic espace : déplacer le ruban sélectionner \
+clic espace : déplacer le ruban sélectionné \
 bouton Cloth: cloth <-> mesh \
 bouton Sew : mode couture activé \
 -> sélectionner les 2 à coudre \
